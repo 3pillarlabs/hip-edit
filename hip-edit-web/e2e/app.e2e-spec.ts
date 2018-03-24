@@ -7,8 +7,10 @@ describe('hip-edit-web App', () => {
     page = new AppPage();
   });
 
-  it('should display welcome message', () => {
+  it('should display correct application title', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to app!');
+    page.getTitle().then((title) => {
+      expect(title).toMatch(/Hip\s+Edit/);
+    });
   });
 });
