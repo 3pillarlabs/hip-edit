@@ -1,20 +1,33 @@
 {
-    "extends": ["eslint:recommended", "google"],
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true,
-        "node": true,
-        "jasmine": true
-    },
-    "rules": {
-      "new-cap": 0,
-      "block-spacing": 0,
-      "max-len": ["error", { "code": 120 }],
-      "linebreak-style": ["error", "unix"]
-    },
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "plugins": ["jasmine"]
+  "parser": "babel-eslint",
+  "extends": [
+    "plugin:flowtype/recommended",
+    "eslint:recommended",
+    "google"
+  ],
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "jasmine": true
+  },
+  "rules": {
+    "new-cap": 0,
+    "block-spacing": 0,
+    "max-len": ["error", { "code": 120 }],
+    "linebreak-style": ["error", "unix"]
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "plugins": [
+    "jasmine",
+    "flowtype"
+  ],
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    }
+  }
 }
