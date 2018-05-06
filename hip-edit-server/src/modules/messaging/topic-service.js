@@ -47,17 +47,16 @@ export default class TopicService {
      return (error: Object, client: Object) => {
        if (error) {
          logger.error(error);
-         return reject(error);
+         reject(error);
+         return;
        }
        try {
          const frame = client.send({destination: topic});
-         frame.write(doc);
-         frame.end();
-         client.disconnect();
-         return resolve();
+         frame.end(doc);
+         client.disconnect(resolve);
        } catch (e) {
          logger.error(e);
-         return reject(e);
+         reject(e);
        }
      };
    }

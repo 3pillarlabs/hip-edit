@@ -23,15 +23,50 @@ describe(TopicService, () => {
     it('should write the data to client frame', () => {
       let resolve = jasmine.createSpy('resolve');
       let onConnect = topicService.delegate('/vim', 'over emacs', resolve, null);
-      let frame = jasmine.createSpyObj('Frame', ['write', 'end']);
-      let client = jasmine.createSpyObj('Client', {send: frame, disconnect: null});
+      let frame = jasmine.createSpyObj('Frame', ['end']);
+      let client = jasmine.createSpyObj('Client', {send: frame});
+      client.disconnect = (r) => {
+        r();
+      };
       onConnect(null, client);
       expect(resolve).toHaveBeenCalled();
     });
-    it('should throw on error', () => {
+    it('should reject on connect error', () => {
       let reject = jasmine.createSpy('reject');
       let onConnect = topicService.delegate('/vim', 'over emacs', null, reject);
-      onConnect({message: 'mock error'}, null);
+      onConnect({message: 'connect error'}, null);
+      expect(reject).toHaveBeenCalled();
+    });
+    it('should reject on error after connection', () => {
+      let reject = jasmine.createSpy('reject');
+      let onConnect = topicService.delegate('/vim', 'over emacs', null, reject);
+      let frame = {
+        write: () => {
+          throw new Error('write error');
+        },
+
+        on: () => {},
+      };
+      let client = jasmine.createSpyObj('Client', {send: frame});
+      onConnect(null, client);
+      expect(reject).toHaveBeenCalled();
+    });
+    it('should reject on write error', () => {
+      let reject = jasmine.createSpy('reject');
+      let onConnect = topicService.delegate('/vim', 'over emacs', null, reject);
+      let eventHandlers = [];
+      let frame = {
+
+        write: () => {
+          eventHandlers[0]['error'](new Error('write error'));
+        },
+
+        on: (eventName, fn) => {
+          eventHandlers.push({'error': fn});
+        },
+      };
+      let client = jasmine.createSpyObj('Client', {send: frame});
+      onConnect(null, client);
       expect(reject).toHaveBeenCalled();
     });
   });

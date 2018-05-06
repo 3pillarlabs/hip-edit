@@ -1,9 +1,9 @@
 import process from 'process';
 
 const AppConfig = {
-  logLevel: process.env.npm_package_config_logger_console_level,
+  logLevel: (process.env.npm_package_config_logger_console_level || 'debug'),
 
-  serverPort: process.env.npm_package_config_server_port,
+  serverPort: (process.env.npm_package_config_server_port || 9000),
 
   messaging: {
     host: process.env.npm_package_config_messaging_host,

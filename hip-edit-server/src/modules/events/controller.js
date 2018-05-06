@@ -27,10 +27,11 @@ export default class CodeEventsRouter {
       this.editorEventService.queue(req.body)
         .then(() => {
           resp.status('201');
-          resp.end();
         })
         .catch((e) => {
           resp.status('400');
+        })
+        .then(() => {
           resp.end();
         });
     });
