@@ -1,16 +1,44 @@
 // @flow
 // Events Controller
-
 import express from 'express';
-const router = express.Router();
+import logger from '../logging';
+import EditorEventService from './service';
 
-router.post('/', (req, resp) => {
-  resp.status('201');
-  resp.end('{ id: \'er345\' }');
-});
+/**
+* Router for processing CodeEvent
+*/
+export default class CodeEventsRouter {
+  editorEventService: EditorEventService;
 
-router.get('/', (req, resp) => {
-  resp.end('[]');
-});
+  /**
+   * @param {EditorEventService} editorEventService
+   */
+  constructor(editorEventService: EditorEventService) {
+    this.editorEventService = editorEventService;
+  }
+  /**
+  * @return {Object} router
+  */
+  router() {
+    const router = express.Router();
 
-export default router;
+    router.post('/', (req, resp) => {
+      logger.debug(req.body);
+      this.editorEventService.queue(req.body)
+        .then(() => {
+          resp.status('201');
+          resp.end();
+        })
+        .catch((e) => {
+          resp.status('400');
+          resp.end();
+        });
+    });
+
+    router.get('/', (req, resp) => {
+      resp.end('[]');
+    });
+
+    return router;
+  }
+}
