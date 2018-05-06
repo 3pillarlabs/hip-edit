@@ -9,8 +9,17 @@ describe('hip-edit-web App', () => {
 
   it('should display correct application title', () => {
     page.navigateTo();
-    page.getTitle().then((title) => {
-      expect(title).toMatch(/Hip\s+Edit/);
-    });
+    expect(page.getTitle()).toMatch(/Hip\s+Edit/);
+  });
+
+  it('should accept code in an element', () => {
+    let inputCode = `class Foo
+      end`;
+    let newPage = page.cloneNew().switch();
+    newPage.navigateTo();
+    page.switch().navigateTo();
+    page.setCode(inputCode);
+    newPage.switch().wait(2);
+    expect(newPage.getCode()).toMatch(inputCode);
   });
 });

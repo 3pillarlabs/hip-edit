@@ -1,0 +1,6 @@
+@mixin color-theme($typeface, $palette) {
+  @if $typeface == "text" {
+    background-color: map-get($palette, bg);
+    color: map-get($palette, fg);
+  }
+}
