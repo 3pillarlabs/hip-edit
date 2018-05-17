@@ -5,5 +5,11 @@
 
 export const environment = {
   production: false,
-  hipEditApiPrefix: 'he-api'
+  hipEditApiPrefix: 'he-api',
+  stomp: {
+    server: {
+      host: 'localhost',
+      port: 61614
+    }
+  }
 };

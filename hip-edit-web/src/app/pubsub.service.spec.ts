@@ -1,34 +1,71 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
-import { HttpClient } from "@angular/common/http";
+
 import { PubsubService } from './pubsub.service';
 import { environment } from '../environments/environment';
 
 describe('PubsubService', () => {
-  let httpClient: HttpClient;
-  let httpTestingController: HttpTestingController;
+  let service: PubsubService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [PubsubService],
-      imports: [HttpClientTestingModule]
+      providers: [PubsubService]
     });
 
-    httpClient = TestBed.get(HttpClient);
-    httpTestingController = TestBed.get(HttpTestingController);
+    service = TestBed.get(PubsubService);
   });
 
-  it('should be created', inject([PubsubService], (service: PubsubService) => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
-  }));
+  });
 
-  describe('#postEvent', () => {
-    it('should post Event data', inject([PubsubService], (service: PubsubService) => {
-      service.postEvent("foo").subscribe();
-      const req = httpTestingController.expectOne(`${environment.hipEditApiPrefix}/events`);
-      expect(req.request.method).toEqual('POST');
-      req.flush(null);
-      httpTestingController.verify();
-    }));
+  describe('#editorEventsStream', () => {
+    describe('#stompClient#connect OK', () => {
+      it('should subscribe for messages', () => {
+        service.stompClient = jasmine.createSpyObj('MockStompClient', ['subscribe'])
+        service.stompClient.connect = (_headers, onConnectOk) => { onConnectOk() }
+        service.editorEventsStream('c3po').subscribe();
+        expect(service.stompClient.subscribe).toHaveBeenCalled();
+      });
+      describe('#onMessage', () => {
+        it('should be emitted further', () => {
+          service.stompClient = {
+            connect: (_headers, onConnectOk) => { onConnectOk() },
+            subscribe: (_destination, onMessage) => { onMessage({body: '{}'}) }
+          };
+          let observer = {
+            next: jasmine.createSpy('next')
+          };
+          service.editorEventsStream('c3p0').subscribe(observer);
+          expect(observer.next).toHaveBeenCalledWith({});
+        });
+        describe('#onMessage emit error', () => {
+          it('should call observer#error', () => {
+            service.stompClient = {
+              connect: (_headers, onConnectOk) => { onConnectOk() },
+              subscribe: (_destination, onMessage) => { onMessage({body: '{'}) },
+              disconnect: jasmine.createSpy('stompClient#disconnect')
+            };
+            let observer = {
+              error: jasmine.createSpy('error')
+            };
+            service.editorEventsStream('c3p0').subscribe(observer);
+            expect(observer.error).toHaveBeenCalled();
+          });
+        })
+      });
+    });
+    describe('#stompClient#connect FAIL', () => {
+      it('should call observer#error', () => {
+        service.stompClient = {
+          connect: (_headers, _onConnectOk, onConnectErr) => { onConnectErr(new Error('Mock Connect Error')) },
+          disconnect: jasmine.createSpy('stompClient#disconnect')
+        };
+        let observer = {
+          error: jasmine.createSpy('error')
+        };
+        service.editorEventsStream('c3p0').subscribe(observer);
+        expect(observer.error).toHaveBeenCalled();
+      });
+    });
   });
 });
