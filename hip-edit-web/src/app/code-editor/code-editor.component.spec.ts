@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { CodeEditorComponent } from './code-editor.component';
 import { MaterialModule } from '../material.module';
@@ -18,6 +19,7 @@ describe('CodeEditorComponent', () => {
         CodeEditorComponent
       ],
       imports: [
+        FormsModule,
         MaterialModule
       ],
       providers: [

@@ -1,5 +1,7 @@
 <form>
   <mat-form-field>
-    <textarea matInput id="hippy-1" #codeArea (change)="onChange(codeArea.value)"></textarea>
+    <textarea matInput id="hippy-1" name="code-editor"
+      #codeArea (change)="onChange(codeArea.value)"
+      [(ngModel)]="codeEditorText">{{codeEditorText}}</textarea>
   </mat-form-field>
 </form>

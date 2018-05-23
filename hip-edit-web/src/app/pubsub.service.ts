@@ -74,10 +74,10 @@ export class PubsubService {
   }
 
   unsubscribeHandler() {
-    let _ref = this.stompClient;
+    let disconnectFn: Function = this.stompClient.disconnect;
     return {
       unsubscribe() {
-        _ref.disconnect();
+        disconnectFn();
       }
     }
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, NgZone } from '@angular/core';
 import { NgModule } from '@angular/core';
 import { ISubscription } from 'rxjs/Subscription';
 
@@ -13,13 +13,16 @@ import { PubsubService } from '../pubsub.service';
 })
 
 export class CodeEditorComponent implements OnInit, AfterViewInit {
+  @Input() codeEditorText: string;
+
   private _sessionToken: string = null;
   private postObserver: ISubscription = null;
   private editorObserver: ISubscription = null;
 
   constructor(
     private editorEventService: EditorEventService,
-    private pubsubService: PubsubService) { }
+    private pubsubService: PubsubService,
+    private ngZone: NgZone) { }
 
   ngOnInit() {
     // TODO: use the location or some other strategy to get the sessionToken
@@ -27,14 +30,19 @@ export class CodeEditorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.editorObserver = this.pubsubService.editorEventsStream(this.sessionToken).subscribe({
-      next: (editorEvent: EditorEvent) => {
-        console.debug(editorEvent);
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    })
+    this.ngZone.runOutsideAngular(() => {
+      this.editorObserver = this.pubsubService.editorEventsStream(this.sessionToken).subscribe({
+        next: (editorEvent: EditorEvent) => {
+          console.debug(editorEvent);
+          this.ngZone.run(() => {
+            this.codeEditorText = editorEvent.text;
+          });
+        },
+        error: (error) => {
+          console.error(error);
+        }
+      })
+    });
   }
 
   ngOnDestroy() {
