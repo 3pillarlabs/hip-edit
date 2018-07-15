@@ -16,6 +16,7 @@ export default class CodeEventsRouter {
   constructor(editorEventService: EditorEventService) {
     this.editorEventService = editorEventService;
   }
+
   /**
   * @return {Object} router
   */
@@ -26,7 +27,7 @@ export default class CodeEventsRouter {
       logger.debug(req.body);
       this.editorEventService.queue(req.body)
         .then(() => {
-          resp.status('201');
+          resp.status('201').json({});
         })
         .catch((e) => {
           resp.status('400');

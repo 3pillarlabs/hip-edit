@@ -9,6 +9,7 @@ describe('Events API Integration Tests', () => {
       agent
         .post(`${baseUrl}/events`)
         .set('Content-Type', 'application/json')
+        .set('Accept', 'application/hal+json,application/json')
         .send({
           sessionToken: '90c01e9a-9401-4953-a0c8-f5d434d76b4d',
           eventType: 'newText',
