@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/3pillarlabs/hip-edit#readme",
   "config": {
-    "ssetuperver": {
+    "server": {
       "port": 9000
     },
     "logger": {

@@ -1,1 +1,5 @@
 dist-lambda/
+dist/
+.idea/
+node_modules/
+*-packaged.yml

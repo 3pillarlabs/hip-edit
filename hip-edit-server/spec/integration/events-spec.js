@@ -1,8 +1,9 @@
+import process from 'process';
 import agent from 'superagent';
 import AppConfig from '../../dist/modules/app-config';
 
 describe('Events API Integration Tests', () => {
-  const baseUrl = `http://localhost:${AppConfig.serverPort}`;
+  const baseUrl = process.env.BASE_URL || `http://localhost:${AppConfig.serverPort}`;
 
   describe('POST /events', () => {
     it('should post the event to the topic', (done) => {
