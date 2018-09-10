@@ -9,7 +9,12 @@ export const environment = {
   stomp: {
     server: {
       host: 'localhost',
-      port: 61614
+      port: 61614,
+      // headers: {
+      //   login: 'login_user',
+      //   passcode: 'login_password',
+      // },
+      // domain: 'HipEdit.Editor',
     }
   }
 };

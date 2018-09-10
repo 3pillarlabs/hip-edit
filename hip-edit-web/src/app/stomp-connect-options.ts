@@ -1,4 +1,6 @@
 export interface StompConnectOptions {
   host: string,
-  port: Number
+  port: number,
+  headers?: {login: string, passcode: string},
+  domain?: string
 }

@@ -2,6 +2,8 @@
 import EditorEvent from './domain';
 import TopicService from '../messaging/topic-service';
 import logger from '../logging';
+import AppConfig from '../app-config';
+
 /**
  * Service for events
  */
@@ -23,6 +25,14 @@ export default class EditorEventService {
    */
   queue(editorEvent: EditorEvent): Promise<void> {
     logger.debug(editorEvent);
-    return this.topicService.postToTopic(editorEvent.sessionToken, JSON.stringify(editorEvent));
+    let topic: ?string = undefined;
+    if (AppConfig.editorTopicDomain) {
+      topic = `${AppConfig.editorTopicDomain}.${editorEvent.sessionToken}`;
+    } else {
+      topic = editorEvent.sessionToken;
+    }
+    logger.debug(`Queuing event to [${topic}]...`);
+
+    return this.topicService.postToTopic(topic, JSON.stringify(editorEvent));
   }
 }

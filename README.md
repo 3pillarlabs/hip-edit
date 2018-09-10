@@ -1,6 +1,6 @@
 # hip-edit
 
-A serverless collaborative editor.
+A serverless collaborative editor. _Serverless_ in this context means no servers _to manage_.
 
 ## Component Architecture
 
@@ -36,3 +36,11 @@ Event:
                |
 [Editor] _____/  (fetch-contents)
 ```
+
+## Project Hierarchy
+
+There are 3 sub-projects with their own README -
+
+* hip-edit-server - API
+* hip-edit-web - SPA
+* deployment - AWS CloudFormation and SAM

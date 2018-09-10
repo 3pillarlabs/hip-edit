@@ -12,7 +12,7 @@ describe('hip-edit-web App', () => {
     expect(page.getTitle()).toMatch(/Hip\s+Edit/);
   });
 
-  it('should accept code in an element', () => {
+  it('should broadcast text to connected sessions', () => {
     let inputCode = `class Foo
       end`;
     let newPage = page.cloneNew().switch();

@@ -50,6 +50,12 @@
       "console": {
         "level": "debug"
       }
+    },
+    "messaging": {
+      "host": "localhost",
+      "port": 61613,
+      "user": null,
+      "password": null
     }
   },
   "devDependencies": {

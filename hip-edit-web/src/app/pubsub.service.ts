@@ -9,11 +9,14 @@ import { environment } from '../environments/environment';
 
 @Injectable()
 export class PubsubService {
-  private defaultOptions = {
+  private defaultOptions: {
+    stomp: {server: StompConnectOptions}
+  } = {
     stomp: {
       server: {
       	host: 'localhost',
-      	port: 61614,
+        port: 61614,
+        headers: null,
       }
     }
   };
@@ -37,8 +40,16 @@ export class PubsubService {
   }
 
   editorEventsStream(sessionToken: string): Observable<EditorEvent> {
+    let destination: string = undefined;
+    if (this.connectOptions.domain) {
+      destination = `${this.connectOptions.domain}.${sessionToken}`;
+    } else {
+      destination = sessionToken;
+    }
+
     return new Observable<EditorEvent>((observer) => {
-      this.stompClient.connect({}, this.onStompConnectOk(observer, sessionToken),
+      let headers = this.connectOptions.headers || {};
+      this.stompClient.connect(headers, this.onStompConnectOk(observer, destination),
                                this.onStompConnectError(observer));
       return this.unsubscribeHandler();
     });
@@ -51,10 +62,10 @@ export class PubsubService {
     }
   }
 
-  onStompConnectOk(observer: Observer<EditorEvent>, sessionToken: string): Function {
+  onStompConnectOk(observer: Observer<EditorEvent>, destination: string): Function {
     return () => {
-      const destination = `/topic/${sessionToken}`;
-      this.stompClient.subscribe(destination, this.onMessage(observer));
+      const topic = `/topic/${destination}`;
+      this.stompClient.subscribe(topic, this.onMessage(observer));
     }
   }
 

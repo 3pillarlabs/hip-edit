@@ -15,8 +15,12 @@ Resources:
       Runtime: nodejs8.10
       Environment:
         Variables:
-          npm_package_config_messaging_host: activemq
-          npm_package_config_messaging_port: 61613
+          npm_config_messaging_host: activemq
+          npm_config_messaging_port: 61613
+          npm_config_logger_console_level: debug
+          npm_config_editor_topic_domain:
+          npm_config_messaging_user:
+          npm_config_messaging_password:
       Events:
         ApiRoot:
           Type: Api

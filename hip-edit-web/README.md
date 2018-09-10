@@ -20,7 +20,11 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Start `hip-edit-server` API services with - `npm run integration:spec:sam:start`.
+
+Run `ng e2e --proxy-conf sam-local.proxy.conf.json` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+
+Stop the API services by `npm run docker-activemq:stop`.
 
 ## Further help
 
