@@ -2,20 +2,30 @@
 AWS Lambda and API Gateway
 """
 from string import Template
-
+from os import environ
+import boto3
+import yaml
 import awscli.clidriver
 from hip_edit import resource_title
 
 
-def main(prefix, template_path, template_context, bucket_name, role_arn=None):
+def main(cli_options, build_context):
     """
     Packages and deploys the AWS Lambda infrastructure
     """
+    prefix = cli_options.name
+    template_path = cli_options.sam_template_path
+    bucket_name = cli_options.sam_bucket_name
     driver = awscli.clidriver.create_clidriver()
-    interpolated_template_path = _interpolate(template_path, template_context)
-    packaged_template_path = _package(prefix, interpolated_template_path, bucket_name, driver)
-    if packaged_template_path is not None:
-        _deploy(prefix, packaged_template_path, driver, role_arn)
+    packaged_template_path = _package(prefix, template_path, bucket_name, driver)
+    if packaged_template_path is None:
+        return None
+    _configure_lambda(packaged_template_path, build_context)
+    if cli_options.dry_run is True:
+        return None
+    stack_name = "%sSAMStack" % prefix
+    _deploy(stack_name, packaged_template_path, driver, cli_options.role_arn)
+    return _collect_outputs(stack_name)
 
 
 def _package(prefix, template_path, bucket_name, driver):
@@ -30,8 +40,7 @@ def _package(prefix, template_path, bucket_name, driver):
     return None
 
 
-def _deploy(prefix, packaged_template_path, driver, role_arn=None):
-    stack_name = "%sSAMStack" % prefix
+def _deploy(stack_name, packaged_template_path, driver, role_arn=None):
     argv = 'cloudformation deploy'.split()
     argv.extend("--template-file {0}".format(packaged_template_path).split())
     argv.extend("--stack-name {0}".format(stack_name).split())
@@ -41,11 +50,16 @@ def _deploy(prefix, packaged_template_path, driver, role_arn=None):
     driver.main(args=argv)
 
 
-def _interpolate(template_path, template_context):
-    out_path = resource_title.packaged_path(template_path, token='staged')
-    with open(template_path, 'r') as in_file:
-        template = in_file.read()
-        with open(out_path, 'w') as out_file:
-            out_file.write(Template(template).substitute(template_context))
+def _configure_lambda(template_path, build_context):
+    model = yaml.load(file(template_path, 'r'))
+    lambda_vars = model['Resources']['HipEditServerApiFunction']['Properties']['Environment']['Variables']
+    for name in lambda_vars.keys():
+        if name in environ:
+            lambda_vars[name] = environ[name]
+        if name in build_context.lambda_vars():
+            lambda_vars[name] = build_context.lambda_var_get(name)
+    yaml.dump(model, stream=file(template_path, 'w'), default_flow_style=False)
 
-    return out_path
+
+def _collect_outputs(stack_name, cloudformation=boto3.resource('cloudformation')):
+    return cloudformation.Stack(stack_name).outputs

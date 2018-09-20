@@ -65,12 +65,12 @@ Resources:
                 '200':
                   description: 200 response
                   schema:
-                    $$ref: '#/definitions/Empty'
+                    $ref: '#/definitions/Empty'
               x-amazon-apigateway-integration:
                 responses:
                   default:
                     statusCode: 200
-                uri: arn:aws:apigateway:$YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$YOUR_AWS_REGION:$YOUR_ACCOUNT_ID:function:$${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
+                uri: !Join [ ":", [ !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}", "function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations"] ]
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 type: aws_proxy
@@ -83,7 +83,7 @@ Resources:
                 '200':
                   description: 200 response
                   schema:
-                    $$ref: '#/definitions/Empty'
+                    $ref: '#/definitions/Empty'
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
@@ -113,9 +113,8 @@ Resources:
                 in: path
                 required: true
                 type: string
-              responses: {}
               x-amazon-apigateway-integration:
-                uri: arn:aws:apigateway:$YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$YOUR_AWS_REGION:$YOUR_ACCOUNT_ID:function:$${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
+                uri: !Join [ ":", [ !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}", "function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations"] ]
                 httpMethod: POST
                 type: aws_proxy
             options:
@@ -127,7 +126,7 @@ Resources:
                 '200':
                   description: 200 response
                   schema:
-                    $$ref: '#/definitions/Empty'
+                    $ref: '#/definitions/Empty'
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
@@ -154,3 +153,13 @@ Resources:
           Empty:
             type: object
             title: Empty Schema
+
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL for ga stage"
+    Value: !Sub "https://${HipEditAPI}.execute-api.${AWS::Region}.amazonaws.com/ga/"
+
+  LambdaArn:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt HipEditServerApiFunction.Arn

@@ -65,3 +65,6 @@ dist/
 
 # Python
 .python-version
+
+# App specific
+hip-edit-infra/.build_context.yml

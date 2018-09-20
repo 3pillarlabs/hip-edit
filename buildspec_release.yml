@@ -1,0 +1,66 @@
+version: 0.2
+
+#env:
+  #variables:
+     # key: "value"
+     # key: "value"
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+
+phases:
+  install:
+    commands:
+      - pip install --upgrade pip
+      - npm install npm@latest -g
+      - cd hip-edit-infra
+      - pip install -r requirements.txt
+      - cd ../hip-edit-server
+      - npm install
+      - cd ../hip-edit-web
+      - npm install
+      - cd ../
+    #finally:
+      # - command
+      # - command
+  #pre_build:
+    #commands:
+      # - command
+      # - command
+    #finally:
+      # - command
+      # - command
+  build:
+    commands:
+      - cd hip-edit-server
+      - npm run build-lambda
+      - cd ../hip-edit-infra
+      - python services.py -s 3pillar-eng -u $CF_ROLE_ARN BouncyBotKeyPair
+      - npm_config_messaging_user=$PUBLISHER_USER npm_config_messaging_password=$PUBLISHER_PASSWORD python sam.py -u $CF_ROLE_ARN ../hip-edit-server/template.yml 3pillar-eng-apps
+      - npm_config_messaging_user=$CONSUMER_USER npm_config_messaging_password=$CONSUMER_PASSWORD python web.py -e ../hip-edit-web
+      - cd ../hip-edit-web
+      - npm run build
+      - cd ../hip-edit-infra
+      - python web.py ../hip-edit-web -s 3pillar-eng
+      - cd ../
+    #finally:
+      # - command
+      # - command
+  #post_build:
+    #commands:
+      # - command
+      # - command
+    #finally:
+      # - command
+      # - command
+#artifacts:
+  #files:
+    # - location
+    # - location
+    # - name
+  #discard-paths: yes
+  #base-directory: location
+#cache:
+  #paths:
+    # - path
+    # - path

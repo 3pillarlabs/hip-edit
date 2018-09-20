@@ -2,15 +2,10 @@
 Builds the VPC, a key pair and a single instance
 """
 from __future__ import print_function
-import logging
 import time
 import boto3
 import botocore
-from hip_edit import cf_template_builder
-from hip_edit import cli_arg_parser
-from hip_edit import key_pair_builder
 from hip_edit import log
-from hip_edit import sam_deployer
 
 logger = log.get_stream_logger(__name__)
 
@@ -24,20 +19,14 @@ def execute(cli_options, template):
     """
     stack_name = "%sStack" % cli_options.name
     if not cli_options.dry_run:
-        _build_key_pair(key_name=cli_options.key_name)
         if cli_options.update_or_create:
             return update_or_create_cf_template(stack_name, template, role_arn=cli_options.role_arn)
         else:
             _delete_cf_stack(stack_name, role_arn=cli_options.role_arn)
-            # TODO delete key_pair
     else:
         logger.debug(template.to_yaml())
         _check_credentials()
         _validate_cf_template(template)
-
-
-def _build_key_pair(key_name):
-    key_pair_builder.build(key_name)
 
 
 def update_or_create_cf_template(stack_name, template,

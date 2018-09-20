@@ -42,6 +42,8 @@ def build_eip(prefix, template, instance):
     eip.Domain = "vpc"
     eip.DependsOn = resource_title.vpc_gateway_title(prefix)
     template.add_resource(eip)
-    template.add_output(Output('STOMPURL',
-                               Description="Stomp Server URL",
-                               Value=Join('', ['http://', Ref(eip)])))
+    template.add_output(Output('MessageServerHost',
+                               Description="Messaging Service Host Public IP",
+                               Value=Ref(eip)
+                              )
+                       )
