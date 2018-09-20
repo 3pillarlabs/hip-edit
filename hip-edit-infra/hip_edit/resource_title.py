@@ -41,5 +41,5 @@ def packaged_path(template_path, token='packaged'):
     dn = os.path.dirname(template_path)
     bn = os.path.basename(template_path)
     fn, ext = re.split('\.', bn)
-    fp = '/'.join((dn, fn))
+    fp = os.path.join(dn, fn)
     return "{0}-{1}.{2}".format(fp, token, ext)

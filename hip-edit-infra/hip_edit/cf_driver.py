@@ -1,11 +1,16 @@
 """
 Builds the VPC, a key pair and a single instance
 """
+from __future__ import print_function
+import logging
 import time
 import boto3
 import botocore
+from hip_edit import cf_template_builder
+from hip_edit import cli_arg_parser
 from hip_edit import key_pair_builder
 from hip_edit import log
+from hip_edit import sam_deployer
 
 logger = log.get_stream_logger(__name__)
 
@@ -21,7 +26,7 @@ def execute(cli_options, template):
     if not cli_options.dry_run:
         _build_key_pair(key_name=cli_options.key_name)
         if cli_options.update_or_create:
-            update_or_create_cf_template(stack_name, template, role_arn=cli_options.role_arn)
+            return update_or_create_cf_template(stack_name, template, role_arn=cli_options.role_arn)
         else:
             _delete_cf_stack(stack_name, role_arn=cli_options.role_arn)
             # TODO delete key_pair
@@ -43,6 +48,7 @@ def update_or_create_cf_template(stack_name, template,
     Updates or creates the resources represented in the cloud formation template.
     """
     stack_id = None
+    response = None
     try:
         response = client.describe_stacks(StackName=stack_name)
         logger.debug(response)
@@ -54,19 +60,18 @@ def update_or_create_cf_template(stack_name, template,
         stack_id = _create_cf_stack(stack_name, template, client, role_arn)
     else:
         if _update_cf_stack(stack_id, template, client, role_arn) is False:
-            return
+            return response['Stacks'][0]['Outputs']
 
-    _wait_to_completion(stack_id, client, retry_seconds=retry_seconds)
+    return _wait_to_completion(stack_id, client, retry_seconds=retry_seconds)
 
 
 def _update_cf_stack(stack_id, template, client, role_arn=None):
     try:
-        response = client.update_stack(
+        client.update_stack(
             StackName=stack_id,
             TemplateBody=template.to_yaml(),
             RoleARN=role_arn
         )
-        stack_id = response['StackId']
         logger.info("Updating stack %s" % stack_id)
         return True
     except botocore.exceptions.ClientError:
@@ -105,6 +110,7 @@ TERMINAL_STATES = [
     'UPDATE_ROLLBACK_FAILED'
 ]
 
+
 def _wait_to_completion(stack_id, client, retry_seconds=10):
     outputs_count = 0
     while True:
@@ -113,7 +119,7 @@ def _wait_to_completion(stack_id, client, retry_seconds=10):
             response = client.describe_stacks(StackName=stack_id)
         except botocore.exceptions.ClientError as error:
             logger.info("Stack '%s' does not exist" % stack_id)
-            break
+            return None
 
         logger.debug(response)
         stack = response['Stacks'][0]
@@ -126,7 +132,7 @@ def _wait_to_completion(stack_id, client, retry_seconds=10):
             logger.info("Status: %s" % status)
 
         if status in TERMINAL_STATES:
-            break
+            return outputs
 
         if retry_seconds > 0:
             logger.debug("Retry in %d seconds..." % retry_seconds)
@@ -136,6 +142,7 @@ def _wait_to_completion(stack_id, client, retry_seconds=10):
 def _validate_cf_template(template, client=boto3.client('cloudformation')):
     response = client.validate_template(TemplateBody=template.to_yaml())
     logger.info(response)
+
 
 def _check_credentials(client=boto3.client('iam')):
     # TODO: check RoleARN
