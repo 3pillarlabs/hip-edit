@@ -18,9 +18,9 @@ Resources:
           npm_config_messaging_host: activemq
           npm_config_messaging_port: 61613
           npm_config_logger_console_level: debug
-          npm_config_editor_topic_domain:
-          npm_config_messaging_user:
-          npm_config_messaging_password:
+          npm_config_editor_topic_domain: ''
+          npm_config_messaging_user: ''
+          npm_config_messaging_password: ''
       Events:
         ApiRoot:
           Type: Api
@@ -41,12 +41,12 @@ Resources:
     Properties:
       StageName: ga
       MethodSettings:
-        - HttpMethod: "*"
+        - HttpMethod: '*'
           ResourcePath: /
           LoggingLevel: ERROR
       EndpointConfiguration: EDGE
       Cors:
-        AllowOrigin: "*"
+        AllowOrigin: '*'
       Variables:
         ServerlessExpressLambdaFunctionName: !Ref HipEditServerApiFunction
       DefinitionBody:
@@ -62,15 +62,15 @@ Resources:
               produces:
               - application/json
               responses:
-                200:
+                '200':
                   description: 200 response
                   schema:
-                    $ref: "#/definitions/Empty"
+                    $$ref: '#/definitions/Empty'
               x-amazon-apigateway-integration:
                 responses:
                   default:
                     statusCode: 200
-                uri: arn:aws:apigateway:YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:YOUR_AWS_REGION:YOUR_ACCOUNT_ID:function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
+                uri: arn:aws:apigateway:$YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$YOUR_AWS_REGION:$YOUR_ACCOUNT_ID:function:$${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 type: aws_proxy
@@ -80,10 +80,10 @@ Resources:
               produces:
               - application/json
               responses:
-                200:
+                '200':
                   description: 200 response
                   schema:
-                    $ref: "#/definitions/Empty"
+                    $$ref: '#/definitions/Empty'
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
@@ -99,10 +99,10 @@ Resources:
                     responseParameters:
                       method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Origin: "*"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
                 passthroughBehavior: when_no_match
                 requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
+                  application/json: '{"statusCode": 200}'
                 type: mock
           /{proxy+}:
             x-amazon-apigateway-any-method:
@@ -115,7 +115,7 @@ Resources:
                 type: string
               responses: {}
               x-amazon-apigateway-integration:
-                uri: arn:aws:apigateway:YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:YOUR_AWS_REGION:YOUR_ACCOUNT_ID:function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
+                uri: arn:aws:apigateway:$YOUR_AWS_REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$YOUR_AWS_REGION:$YOUR_ACCOUNT_ID:function:$${stageVariables.ServerlessExpressLambdaFunctionName}/invocations
                 httpMethod: POST
                 type: aws_proxy
             options:
@@ -124,10 +124,10 @@ Resources:
               produces:
               - application/json
               responses:
-                200:
+                '200':
                   description: 200 response
                   schema:
-                    $ref: "#/definitions/Empty"
+                    $$ref: '#/definitions/Empty'
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
@@ -143,10 +143,10 @@ Resources:
                     responseParameters:
                       method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Origin: "*"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
                 passthroughBehavior: when_no_match
                 requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
+                  application/json: '{"statusCode": 200}'
                 type: mock
         x-amazon-apigateway-binary-media-types:
           - '*/*'

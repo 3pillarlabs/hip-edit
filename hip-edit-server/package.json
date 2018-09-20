@@ -8,9 +8,11 @@
     "dev:start": "nodemon --exec npm run transpile",
     "prod": "node dist/server.js",
     "rimraf": "rimraf dist",
+    "rimraf-lambda": "rimraf dist-lambda",
     "mkdirp": "mkdirp dist",
     "mkdirp-lambda": "mkdirp dist-lambda",
     "clean": "run-s rimraf mkdirp",
+    "clean-lambda": "run-s rimraf-lambda",
     "install": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist src/",
     "install-lambda": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist-lambda src/",
     "install-lambda-deps": "cp -rf node_modules dist-lambda/.",
@@ -73,6 +75,8 @@
     "npm-run-all": "^4.1.2",
     "rimraf": "^2.6.2",
     "source-map-support": "^0.5.5",
+    "nodemon": "^1.17.1",
+    "jasmine": "^3.1.0",
     "supertest": "^3.0.0"
   },
   "dependencies": {
@@ -80,10 +84,8 @@
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.2",
-    "jasmine": "^3.1.0",
     "lodash": "^4.17.5",
     "morgan": "^1.9.0",
-    "nodemon": "^1.17.1",
     "stompit": "^0.25.0",
     "winston": "^2.4.1"
   }
