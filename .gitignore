@@ -60,6 +60,9 @@ typings/
 # Idea
 .idea/
 
+# VS Code
+**/.vscode
+
 # Distribution directories
 dist/
 
