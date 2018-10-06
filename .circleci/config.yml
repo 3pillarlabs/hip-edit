@@ -1,0 +1,42 @@
+# Circle CI configuration
+version: 2
+
+jobs:
+
+  buildAndTestServer:
+    docker:
+      - image: circleci/node:8.12.0-stretch-browsers
+    steps:
+      - checkout
+      - run:
+          name: Upgrade npm
+          command: sudo npm i -g npm@latest
+      - run:
+          name: Install dependencies
+          command: cd hip-edit-server && npm install
+      - run:
+          name: Run tests
+          command: cd hip-edit-server && npm test
+
+  buildAndTestWeb:
+    docker:
+      - image: circleci/node:8.12.0-stretch-browsers
+    steps:
+      - checkout
+      - run:
+          name: Upgrade npm
+          command: sudo npm i -g npm@latest
+      - run:
+          name: Install dependencies
+          command: cd hip-edit-web && npm install
+      - run:
+          name: Run tests
+          command: cd hip-edit-web && npx ng test --single-run --browsers ChromeHeadless
+
+
+workflows:
+  version: 2
+  buildAndTestAll:
+    jobs:
+      - buildAndTestServer
+      - buildAndTestWeb
