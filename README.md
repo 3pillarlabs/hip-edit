@@ -1,6 +1,6 @@
-# hip-edit
+# hip-edit [![CircleCI](https://circleci.com/gh/3pillarlabs/hip-edit/tree/develop.svg?style=shield)](https://circleci.com/gh/3pillarlabs/hip-edit/tree/develop)
 
-A serverless collaborative editor. _Serverless_ in this context means no servers _to manage_.
+A serverless collaborative editor. _Serverless_ in this context means no servers _to manage_. 
 
 ## Component Architecture
 
