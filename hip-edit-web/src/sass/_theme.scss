@@ -1,0 +1,56 @@
+@import "~@angular/material/theming";
+
+@include mat-core();
+
+$primary-color: #394a58;
+
+$mat-hippy-primary: (
+  50: lighten($primary-color, 5),
+  100: $primary-color,
+  200: darken($primary-color, 2),
+  300: darken($primary-color, 3),
+  400: darken($primary-color, 4),
+  500: darken($primary-color, 5),
+  600: darken($primary-color, 6),
+  700: darken($primary-color, 7),
+  800: darken($primary-color, 8),
+  900: darken($primary-color, 9),
+  A100: darken($primary-color, 10),
+  A200: darken($primary-color, 11),
+  A400: darken($primary-color, 13),
+  A700: darken($primary-color, 16),
+  contrast: (
+    100: $light-primary-text,
+    200: $light-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $light-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text,
+  )
+);
+$primary: mat-palette($mat-hippy-primary);
+$accent:  mat-palette($mat-grey);
+$theme: mat-dark-theme($primary, $accent);
+
+@include angular-material-theme($theme);
+@include nav-theme($theme);
+@include main-theme($theme);
+@include footer-theme($theme);
+
+$font-family-heading: "Roboto Condensed", "Arial Black";
+$font-family-text: Roboto, Arial;
+$typefaces: (
+  heading: (
+    font-family: $font-family-heading,
+  ),
+  text: (
+    font-family: $font-family-text,
+  )
+);

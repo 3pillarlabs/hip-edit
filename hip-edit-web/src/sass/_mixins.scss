@@ -1,6 +1,78 @@
-@mixin color-theme($typeface, $palette) {
-  @if $typeface == "text" {
-    background-color: map-get($palette, bg);
-    color: map-get($palette, fg);
+/*
+ * Common settings for elements that make up the outline.
+ */
+@mixin viewport {
+  nav, main, footer {
+    padding: 0.5rem 0 0 $viewport-padding;
+  }
+}
+
+/*
+ * nav theme
+ */
+@mixin nav-theme($theme) {
+  $primary: map-get($map: $theme, $key: primary);
+  $accent: map-get($map: $theme, $key: accent);
+
+  nav {
+    background-color: mat-color($primary);
+    color: mat-color($accent, A100, 0.8);
+    a {
+      color: mat-color($accent, A100, 0.8);
+      text-decoration: none;
+      &:hover {
+        color: mat-color($accent, A100);
+      }
+    };
+    border-bottom: 2px solid mat-color($primary, A100);
+    .brand {
+      div {
+        float: left;
+        margin-right: 0.5rem;
+      }
+      .material-icons {
+        font-size: 4rem;
+        color: #ff7900;
+      }
+      h1 {
+        text-shadow: 0.2rem 0.2rem mat-color($primary, 50);
+      }
+    }
+  }
+}
+
+/*
+ * main theme
+ */
+@mixin main-theme($theme) {
+  $background: map-get($map: $theme, $key: primary);
+  $foreground: map-get($map: $theme, $key: foreground);
+  $background-color: mat-color($background, 50);
+  main {
+    background-color: $background-color;
+    color: map-get($map: $foreground, $key: text);
+  }
+}
+
+/*
+ * footer theme
+ */
+@mixin footer-theme($theme) {
+  $primary: map-get($map: $theme, $key: primary);
+  $accent: map-get($map: $theme, $key: accent);
+
+  footer {
+    background-color: mat-color($primary, 100);
+    color: mat-color($accent);
+    h1, h2, h3, h4, h5, h6 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+    p, ul {
+      font-size: 0.8rem;
+    }
+    ul {
+      padding-left: 1.0rem;
+    }
   }
 }
