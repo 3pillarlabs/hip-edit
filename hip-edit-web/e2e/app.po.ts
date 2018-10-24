@@ -2,7 +2,10 @@ import { browser, by, element, ProtractorBrowser, protractor } from 'protractor'
 import { By, promise } from 'selenium-webdriver';
 
 export class AppPage {
-  private codeArea : By = by.id('hippy-1');
+  private codeArea: By  = by.id('hippy-1');
+  private fullNameField: By = by.xpath('//input[@name="fullName"]');
+  private sessionTokenField: By = by.xpath('//input[@name="sessionToken"]');
+  private joinButton: By = by.xpath('//button[@name="joinSession"]');
   private browser : ProtractorBrowser = null;
 
   constructor(newBrowser : ProtractorBrowser = null) {
@@ -45,5 +48,16 @@ export class AppPage {
 
   private openNewBrowserWindow() : ProtractorBrowser {
     return this.browser.forkNewDriverInstance();
+  }
+
+  async joinSession(fullName: string, sessionToken: string) {
+    this.browser.element(this.sessionTokenField).sendKeys(sessionToken);
+    this.browser.element(this.fullNameField).sendKeys(fullName);
+    await this.browser.element(this.joinButton).click();
+    try {
+      return this.browser.element(this.codeArea);
+    } catch (error) {
+      return undefined;
+    }
   }
 }

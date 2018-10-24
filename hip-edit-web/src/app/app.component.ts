@@ -12,6 +12,6 @@ export class AppComponent implements OnInit {
   public constructor(private titleService: Title) { }
 
   ngOnInit() {
-    this.titleService.setTitle('Hip Edit');
+    this.titleService.setTitle('Rarity');
   }
 }

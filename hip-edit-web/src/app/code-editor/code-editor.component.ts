@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, Input, NgZone } from '@angular/core';
-import { NgModule } from '@angular/core';
 import { ISubscription } from 'rxjs/Subscription';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import { EditorEvent } from './code-editor-event';
 import { EditorEventService } from './editor-event.service';
@@ -20,13 +20,21 @@ export class CodeEditorComponent implements OnInit, AfterViewInit {
   private editorObserver: ISubscription = null;
 
   constructor(
+    private route: ActivatedRoute,
     private editorEventService: EditorEventService,
     private pubsubService: PubsubService,
     private ngZone: NgZone) { }
 
   ngOnInit() {
-    // TODO: use the location or some other strategy to get the sessionToken
-    this.sessionToken = 'eb6e7dc8-9fe3-4bec-b211-661af5e9209c';
+    this.route.paramMap.subscribe({
+      next: (params: ParamMap) => {
+        this.sessionToken = params.get('sessionToken');
+        console.debug(`sessionToken: ${this.sessionToken}`);
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
   }
 
   ngAfterViewInit() {

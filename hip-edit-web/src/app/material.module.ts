@@ -1,15 +1,18 @@
 import { NgModule }                from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule }          from '@angular/material';
+import { MatButtonModule }          from '@angular/material';
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
-    MatInputModule
+    MatInputModule,
+    MatButtonModule
   ],
   exports: [
     BrowserAnimationsModule,
-    MatInputModule
+    MatInputModule,
+    MatButtonModule
   ]
 })
 

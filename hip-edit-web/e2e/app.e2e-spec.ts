@@ -1,18 +1,23 @@
 import { AppPage } from './app.po';
 
-describe('hip-edit-web App', () => {
+describe('hip-edit-web user', () => {
   let page: AppPage;
 
   beforeEach(() => {
     page = new AppPage();
   });
 
-  it('should display correct application title', () => {
+  it('should view correct application title', () => {
     page.navigateTo();
-    expect(page.getTitle()).toMatch(/Hip\s+Edit/);
+    expect(page.getTitle()).toMatch(/Rarity/i);
   });
 
-  it('should broadcast text to connected sessions', () => {
+  it('should be able to join an existing session', () => {
+    page.navigateTo();
+    expect(page.joinSession('John Doe', 'ed59e0d5-c9df-4d08-9345-d35ab2bd83e3')).toBeTruthy();
+  });
+
+  it('should have editor changes broadcast to connected sessions', () => {
     let inputCode = `class Foo
       end`;
     let newPage = page.cloneNew().switch();

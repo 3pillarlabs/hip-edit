@@ -4,7 +4,7 @@
 
 $primary-color: #394a58;
 
-$mat-hippy-primary: (
+$mat-hippy: (
   50: lighten($primary-color, 5),
   100: $primary-color,
   200: darken($primary-color, 2),
@@ -35,7 +35,7 @@ $mat-hippy-primary: (
     A700: $light-primary-text,
   )
 );
-$primary: mat-palette($mat-hippy-primary);
+$primary: mat-palette($mat-hippy);
 $accent:  mat-palette($mat-grey);
 $theme: mat-dark-theme($primary, $accent);
 
