@@ -38,12 +38,10 @@ form {
     .action-bar {
       padding-top: 1.5rem;
     }
+    mat-form-field {
+      margin-top: 1.5rem;
+    }
   }
-}
-
-.level-20 {
-  top: 12vh;
-  position: relative;
 }
 
 .row {

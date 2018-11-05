@@ -3,7 +3,7 @@ import { By, promise } from 'selenium-webdriver';
 
 export class AppPage {
   private codeArea: By  = by.id('hippy-1');
-  private fullNameField: By = by.xpath('//input[@name="fullName"]');
+  private fullNameField: By = by.xpath('//input[@name="userAlias"]');
   private sessionTokenField: By = by.xpath('//input[@name="sessionToken"]');
   private joinButton: By = by.xpath('//button[@name="joinSession"]');
   private browser : ProtractorBrowser = null;

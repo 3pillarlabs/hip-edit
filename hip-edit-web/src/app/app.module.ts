@@ -1,7 +1,7 @@
 import { BrowserModule, Title }    from '@angular/platform-browser';
 import { NgModule }                from '@angular/core';
 import { HttpClientModule }        from '@angular/common/http';
-import { FormsModule }             from '@angular/forms';
+import { FormsModule, ReactiveFormsModule }             from '@angular/forms';
 import { RouterModule, Routes }    from '@angular/router';
 
 import { AppComponent }            from './app.component';
@@ -13,6 +13,7 @@ import { JoinSessionComponent }    from './join-session/join-session.component';
 
 const appRoutes: Routes = [
   { path: 'session/:sessionToken', component: CodeEditorComponent,  outlet: 'editors' },
+  { path: 'session/:sessionToken/join', component: JoinSessionComponent,  outlet: 'editors' },
   { path: '',                      component: JoinSessionComponent, outlet: 'editors' }
 ];
 
@@ -25,6 +26,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     MaterialModule,
     RouterModule.forRoot(appRoutes)
