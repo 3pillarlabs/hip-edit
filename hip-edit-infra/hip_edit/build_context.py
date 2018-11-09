@@ -13,8 +13,17 @@ class BuildContext(object):
         self.file_path = file_path
         self._build_data = None
         self._lambda_vars = [
-            'npm_config_messaging_host'
+            'npm_config_messaging_host',
+            'npm_config_messaging_password'
         ]
+
+
+    def __str__(self):
+        return self.__repr__()
+
+
+    def __repr__(self):
+        return self._build_data.__repr__()
 
 
     def lambda_vars(self):
@@ -24,15 +33,27 @@ class BuildContext(object):
         return self._lambda_vars
 
 
-    def lambda_var_get(self, name):
+    def get(self, name, group_key=None):
         """
         Value if name is known, None otherwise.
         """
+        value = None
+        ctx = self._context()
         if name == 'npm_config_messaging_host':
-            return self._context()['services']['MessageServerHost']
+            value = ctx['services']['MessageServerHost']
         elif name == 'ApiUrl':
-            return self._context()['sam']['ApiUrl']
-        return None
+            value = ctx['sam']['ApiUrl']
+        elif group_key is not None:
+            if isinstance(group_key, str):
+                value = ctx[group_key].get(name)
+            elif isinstance(group_key, (list, tuple)):
+                for k in group_key:
+                    ctx = ctx[k]
+                value = ctx[name]
+        else:
+            value = ctx.get('sam', {}).get(name) or ctx.get('services', {}).get(name)
+
+        return value
 
 
     def _context(self):
@@ -48,12 +69,27 @@ class BuildContext(object):
         """
         Adds each output to the internal context, keyed by the group key
         """
-        if group_key not in self._context():
-            self._context()[group_key] = {}
+        ctx = self._context()
+        if isinstance(group_key, (list, tuple)):
+            for k in group_key:
+                if k not in ctx:
+                    ctx[k] = {}
+                ctx = ctx[k]
+
+        else:
+            if group_key not in self._context():
+                ctx[group_key] = {}
+            ctx = ctx[group_key]
+
         for output_dict in outputs:
-            name = output_dict['OutputKey']
-            value = output_dict['OutputValue']
-            self._context()[group_key][name] = value
+            if isinstance(output_dict, dict):
+                name = output_dict['OutputKey']
+                value = output_dict['OutputValue']
+            elif isinstance(output_dict, tuple):
+                name = output_dict[0]
+                value = output_dict[1]
+            ctx[name] = value
+
         return self
 
 

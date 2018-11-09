@@ -24,9 +24,8 @@ def build(cli_options):
 
 def _build_aws_cf_template(cli_options, template):
     prefix = cli_options.name
-    vpc_resource, subnet_resource, security_group_resource = vpc.build(prefix, template)
+    _vpc_resource, subnet_resource, security_group_resource = vpc.build(prefix, template)
     instance.build(prefix, template,
-                   vpc=vpc_resource,
                    subnet=subnet_resource,
                    security_group=security_group_resource,
                    region_code=cli_options.region,

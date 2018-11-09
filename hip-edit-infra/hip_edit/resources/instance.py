@@ -8,7 +8,7 @@ from hip_edit import resource_title
 
 DEFAULT_INSTANCE_TYPE = 't2.micro'
 
-def build(prefix, template, vpc, subnet, security_group, region_code, instance_type=None, key_name=None, index=1):
+def build(prefix, template, subnet, security_group, region_code, instance_type=None, key_name=None, index=1):
     """
     Template for launching instance into the VPC.
     """
@@ -29,6 +29,9 @@ def build(prefix, template, vpc, subnet, security_group, region_code, instance_t
     instance.SubnetId = Ref(subnet)
     instance.Tags = [tagging.name(instance_title), tagging.env_name()]
     template.add_resource(instance)
+    template.add_output(Output('MessageServerInstanceId',
+                               Description="Messaging Server Instance ID",
+                               Value=Ref(instance)))
     build_eip(prefix, template, instance)
     return instance
 

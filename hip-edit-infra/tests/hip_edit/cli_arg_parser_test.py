@@ -40,3 +40,32 @@ class CliArgParserTest(unittest.TestCase):
         assert options.dry_run is True
         assert options.verbose is True
         assert options.stack_operation == 'delete'
+
+
+    def test_services_users(self):
+        """
+        Tests for activemq users
+        """
+        argv = 'KeyPair --amq-users admins:zoe publishers:sara publishers:bob guests:fred guests:alice'.split()
+        options = self.services_parser.parse_args(args=argv)
+        assert 'zoe' in options.amq_users
+        assert 'sara' in options.amq_users
+        assert 'bob' in options.amq_users
+        assert 'fred' in options.amq_users
+        assert 'alice' in options.amq_users
+
+
+    def test_services_groups(self):
+        """
+        Tests for activemq groups
+        """
+        argv = 'KeyPair --amq-users admins:zoe publishers:sara publishers:bob guests:fred guests:alice'.split()
+        options = self.services_parser.parse_args(args=argv)
+        assert 'admins' in options.amq_groups
+        assert 'zoe' in options.amq_groups['admins']
+        assert 'publishers' in options.amq_groups
+        assert 'sara' in options.amq_groups['publishers']
+        assert 'bob' in options.amq_groups['publishers']
+        assert 'guests' in options.amq_groups
+        assert 'fred' in options.amq_groups['guests']
+        assert 'alice' in options.amq_groups['guests']
