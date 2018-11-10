@@ -1,11 +1,12 @@
 """
 AWS Lambda and API Gateway
 """
-from string import Template
 from os import environ
+
+import awscli.clidriver
 import boto3
 import yaml
-import awscli.clidriver
+
 from hip_edit import resource_title
 
 

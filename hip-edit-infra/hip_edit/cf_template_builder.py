@@ -1,14 +1,14 @@
 """
 CloudFormation template builder
 """
-from troposphere import Template
-from hip_edit import log
+from troposphere import Template, Parameter
+from hip_edit import log, resource_title
 from hip_edit.resources import bucket
 from hip_edit.resources import instance
 from hip_edit.resources import vpc
 
 
-logger = log.get_stream_logger(__name__)
+LOGGER = log.get_stream_logger(__name__)
 
 
 def build(cli_options):
@@ -18,14 +18,36 @@ def build(cli_options):
     prefix = cli_options.name
     t = Template(Description="Infrastructure for %s" % prefix)
     _build_aws_cf_template(cli_options, template=t)
-    logger.debug(t.to_yaml())
+    LOGGER.debug(t.to_yaml())
     return t
 
 
 def _build_aws_cf_template(cli_options, template):
+    """
+    :param troposphere.Template template:
+    """
     prefix = cli_options.name
-    _vpc_resource, subnet_resource, security_group_resource = vpc.build(prefix, template)
+    vpc_param = None
+    if cli_options.vpc_id:
+        vpc_param = Parameter(resource_title.vpc_title(prefix),
+                              Type='AWS::EC2::VPC::Id',
+                              Default=cli_options.vpc_id,
+                              Description='VPC to use for the backing services')
+        template.add_parameter(vpc_param)
+
+    subnet_param = None
+    if cli_options.subnet_id:
+        subnet_param = Parameter(resource_title.subnet_title(prefix),
+                                 Type='AWS::EC2::Subnet::Id',
+                                 Default=cli_options.subnet_id,
+                                 Description='Subnet to use for the backing services')
+        template.add_parameter(subnet_param)
+
+    vpc_resource, subnet_resource, security_group_resource = vpc.build(prefix, template,
+                                                                        vpc_param=vpc_param,
+                                                                        subnet_param=subnet_param)
     instance.build(prefix, template,
+                   vpc=vpc_resource,
                    subnet=subnet_resource,
                    security_group=security_group_resource,
                    region_code=cli_options.region,

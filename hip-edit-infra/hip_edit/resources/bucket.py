@@ -1,15 +1,11 @@
 """
 S3 and CloudFront.
 """
+from troposphere import GetAtt, Output
+from troposphere.s3 import Bucket, PublicRead, WebsiteConfiguration
 
-import re
-
-from troposphere import Output
-from troposphere import GetAtt
-from troposphere.s3 import Bucket
-from troposphere.s3 import PublicRead
-from troposphere.s3 import WebsiteConfiguration
 from hip_edit import resource_title
+
 
 def build(prefix, template, suffix=None):
     """

@@ -18,6 +18,10 @@ def services_arg_parser(name='BouncyBot', region='us-east-1'):
                         nargs='+',
                         help='one or more ActiveMQ users to be configured in group-name:user-name format'
                        )
+    parser.add_argument('--vpc-id',
+                        help='Identifier of the VPC to use instead of creating a new one')
+    parser.add_argument('--subnet-id',
+                        help='Identifier of the subnet to use inside the VPC')
     parser.add_argument('key_name',
                         help='Key pair for which you have the private key to connect to the messaging server'
                        )

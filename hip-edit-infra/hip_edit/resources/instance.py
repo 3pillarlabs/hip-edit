@@ -8,7 +8,7 @@ from hip_edit import resource_title
 
 DEFAULT_INSTANCE_TYPE = 't2.micro'
 
-def build(prefix, template, subnet, security_group, region_code, instance_type=None, key_name=None, index=1):
+def build(prefix, template, vpc, subnet, security_group, region_code, instance_type=None, key_name=None, index=1):
     """
     Template for launching instance into the VPC.
     """
@@ -32,18 +32,19 @@ def build(prefix, template, subnet, security_group, region_code, instance_type=N
     template.add_output(Output('MessageServerInstanceId',
                                Description="Messaging Server Instance ID",
                                Value=Ref(instance)))
-    build_eip(prefix, template, instance)
+    build_eip(prefix, template, vpc, instance)
     return instance
 
 
-def build_eip(prefix, template, instance):
+def build_eip(prefix, template, vpc, instance):
     """
     Adds an Elastic IP to the template and its value to the CF outputs.
     """
     eip = ec2.EIP("%sEIP" % prefix)
     eip.InstanceId = Ref(instance)
     eip.Domain = "vpc"
-    eip.DependsOn = resource_title.vpc_gateway_title(prefix)
+    if isinstance(vpc, ec2.VPC):
+        eip.DependsOn = resource_title.vpc_gateway_title(prefix)
     template.add_resource(eip)
     template.add_output(Output('MessageServerHost',
                                Description="Messaging Service Host Public IP",

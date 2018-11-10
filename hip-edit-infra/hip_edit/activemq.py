@@ -3,8 +3,8 @@ Configures the remote activemq instance
 """
 import crypt
 import datetime
-import logging
 import re
+import string
 import tempfile
 import time
 from os import path, urandom
@@ -16,8 +16,10 @@ from hip_edit import log
 
 LOGGER = log.get_stream_logger(__name__)
 
-
-def check_instance_status(instance_id, ec2=boto3.resource('ec2'), client=boto3.client('ec2'), wait_seconds=10):
+def check_instance_status(instance_id,
+                          ec2=boto3.resource('ec2'),
+                          client=boto3.client('ec2'),
+                          wait_seconds=10, total_wait_seconds=600):
     """
     Waits for instance and system checks to complete.
     """
@@ -26,16 +28,19 @@ def check_instance_status(instance_id, ec2=boto3.resource('ec2'), client=boto3.c
         LOGGER.info('ActiveMQ instance is stopped, starting...')
         instance.start()
 
+    elapsed_seconds = 0
     up_and_running = False
-    while up_and_running is False:
+    while up_and_running is False and elapsed_seconds <= total_wait_seconds:
         response = client.describe_instance_status(InstanceIds=[instance_id])
         model = response['InstanceStatuses'][0]
         if model['InstanceStatus']['Status'] == 'ok' and model['SystemStatus']['Status'] == 'ok':
             up_and_running = True
         else:
             time.sleep(wait_seconds)
+            elapsed_seconds += wait_seconds
             LOGGER.debug(model)
 
+    LOGGER.info('ActiveMQ instance up and running')
     return True
 
 
@@ -181,21 +186,25 @@ def _put_file(local_path, ssh_client, distribution, outputs, remote_path_getter)
     distribution.put_config_file(ssh_client, local_path, remote_path=remote_path_getter())
 
 
-def _configure_activemq(ssh_client, distribution, templates_path, config_file='activemq.xml'):
+def _configure_activemq(ssh_client, distribution, templates_path, config_file='activemq.secure.xml'):
     config_path = path.join(templates_path, config_file)
-    distribution.put_config_file(ssh_client, local_path=config_path, remote_path=distribution.activemq_config_path())
-    ssh_exec(ssh_client, 'sudo /opt/bitnami/ctlscript.sh restart activemq')
+    distribution.put_activemq_conf(ssh_client, local_path=config_path)
 
+
+
+ACTIVEMQ_PASSWORD_REXP = re.compile('<property name="password" value="(.+?)"/>')
 
 class BitnamiDistribution(object):
     """
     Properties for a Bitnami distribution
     """
+
     def __init__(self):
         self.username = 'ubuntu'
         self.home_path = '/home/bitnami'
         self.base_path = "%s/stack/activemq" % self.home_path
         self.config_path = "%s/conf" % self.base_path
+        self.ctl_script_path = '/opt/bitnami/ctlscript.sh'
 
 
     def fetch_bitnami_credentials(self, ssh_client):
@@ -238,10 +247,48 @@ class BitnamiDistribution(object):
         ssh_exec(ssh_client, "sudo mv %s %s" % (intermediate_path, remote_path))
 
 
+    def put_activemq_conf(self, ssh_client, local_path):
+        """
+        Copies and updates activemq configuration
+        """
+        admin_password = self._get_activemq_admin_password(ssh_client)
+        templ = string.Template(file(local_path).read())
+        tmp_file = path.join(tempfile.tempdir, path.basename(self.activemq_config_path()))
+        with open(tmp_file, 'w') as out_cfg:
+            out_cfg.write(templ.substitute(encryptedPassword=admin_password))
+
+        self.put_config_file(ssh_client, tmp_file, remote_path=self.activemq_config_path())
+        ssh_exec(ssh_client, "sudo chown root:activemq %s %s %s" % (self.users_properties_path(),
+                                                                    self.groups_properties_path(),
+                                                                    self.activemq_config_path()))
+        ssh_exec(ssh_client, "sudo chmod 640 %s %s %s" % (self.users_properties_path(),
+                                                          self.groups_properties_path(),
+                                                          self.activemq_config_path()))
+        out = ssh_exec(ssh_client, "sudo %s restart activemq" % self.ctl_script_path)
+        LOGGER.debug("Restarted activemq\n%s", out)
+
+
+    def _get_activemq_admin_password(self, ssh_client):
+        activemq_config_file = path.basename(self.activemq_config_path())
+        sftp_client = ssh_client.open_sftp()
+        tmp_file = path.join(tempfile.tempdir, activemq_config_file)
+        ssh_exec(ssh_client, "sudo cp %s %s" % (self.activemq_config_path(), self.home_path))
+        ssh_exec(ssh_client, "sudo chown bitnami:bitnami %s/%s" % (self.home_path, activemq_config_file))
+        sftp_client.get("%s/%s" % (self.home_path, activemq_config_file), tmp_file)
+        with open(tmp_file, 'r') as remote_cfg:
+            for line in remote_cfg:
+                match = ACTIVEMQ_PASSWORD_REXP.search(line)
+                if match:
+                    return match.group(1)
+        return None
+
+
+
 def ssh_exec(ssh_client, command):
     """
     Executes the command over ssh_client. Raises stderr and returns stdout
     """
+    LOGGER.debug(command)
     _stdin, stdout, stderr = ssh_client.exec_command(command)
     if stderr is not None:
         err = stderr.read()
