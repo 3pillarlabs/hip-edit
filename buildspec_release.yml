@@ -11,7 +11,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - ./install_all.sh
+      - sh ./install_all.sh
     #finally:
       # - command
       # - command
@@ -24,7 +24,7 @@ phases:
       # - command
   build:
     commands:
-      - ./deploy_all.sh
+      - sh ./deploy_all.sh
     #finally:
       # - command
       # - command
