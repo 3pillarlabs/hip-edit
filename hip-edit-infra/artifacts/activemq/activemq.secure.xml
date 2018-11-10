@@ -18,12 +18,12 @@
 
   <bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
      <property name="algorithm" value="PBEWithMD5AndDES"/>
-     <property name="password" value="16f06ed5f106"/>
-  </bean> 
+     <property name="password" value="${encryptedPassword}"/>
+  </bean>
 
-  <bean id="propertyConfigurer" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"> 
-      <constructor-arg ref="configurationEncryptor"/> 
-      <property name="location" value="file:${activemq.conf}/credentials-enc.properties"/> 
+  <bean id="propertyConfigurer" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer">
+      <constructor-arg ref="configurationEncryptor"/>
+      <property name="location" value="file:$${activemq.conf}/credentials-enc.properties"/>
   </bean>
 
    <!-- Allows accessing the server log -->
@@ -33,16 +33,8 @@
    <!--
        The <broker> element is used to configure the ActiveMQ broker.
    -->
-   <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}">
+   <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="$${activemq.data}">
        <plugins>
-           <!--
-           <simpleAuthenticationPlugin>
-               <users>
-                   <authenticationUser username="${activemq.username}" password="${activemq.password}" groups="admins"/>
-                   <authenticationUser username="${hip_edit.username}" password="${hip_edit.password}" groups="admins"/>
-               </users>
-           </simpleAuthenticationPlugin>
-           -->
            <jaasAuthenticationPlugin configuration="activemq" />
            <authorizationPlugin>
                <map>
@@ -56,7 +48,7 @@
                </map>
            </authorizationPlugin>
        </plugins>
-           
+
         <destinationPolicy>
             <policyMap>
               <policyEntries>
@@ -100,7 +92,7 @@
             http://activemq.apache.org/persistence.html
         -->
         <persistenceAdapter>
-            <kahaDB directory="${activemq.data}/kahadb"/>
+            <kahaDB directory="$${activemq.data}/kahadb"/>
         </persistenceAdapter>
 
 
@@ -159,7 +151,7 @@
         Enable web consoles, REST and Ajax APIs and demos
         The web consoles requires by default login, you can disable this in the jetty.xml file
 
-        Take a look at ${ACTIVEMQ_HOME}/conf/jetty.xml for more details
+        Take a look at $${ACTIVEMQ_HOME}/conf/jetty.xml for more details
     -->
     <import resource="jetty.xml"/>
 

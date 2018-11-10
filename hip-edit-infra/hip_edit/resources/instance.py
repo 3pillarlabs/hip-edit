@@ -29,18 +29,22 @@ def build(prefix, template, vpc, subnet, security_group, region_code, instance_t
     instance.SubnetId = Ref(subnet)
     instance.Tags = [tagging.name(instance_title), tagging.env_name()]
     template.add_resource(instance)
-    build_eip(prefix, template, instance)
+    template.add_output(Output('MessageServerInstanceId',
+                               Description="Messaging Server Instance ID",
+                               Value=Ref(instance)))
+    build_eip(prefix, template, vpc, instance)
     return instance
 
 
-def build_eip(prefix, template, instance):
+def build_eip(prefix, template, vpc, instance):
     """
     Adds an Elastic IP to the template and its value to the CF outputs.
     """
     eip = ec2.EIP("%sEIP" % prefix)
     eip.InstanceId = Ref(instance)
     eip.Domain = "vpc"
-    eip.DependsOn = resource_title.vpc_gateway_title(prefix)
+    if isinstance(vpc, ec2.VPC):
+        eip.DependsOn = resource_title.vpc_gateway_title(prefix)
     template.add_resource(eip)
     template.add_output(Output('MessageServerHost',
                                Description="Messaging Service Host Public IP",

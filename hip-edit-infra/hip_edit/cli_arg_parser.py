@@ -2,6 +2,7 @@
 CLI option parser
 """
 from argparse import ArgumentParser
+from collections import defaultdict
 
 
 def services_arg_parser(name='BouncyBot', region='us-east-1'):
@@ -13,6 +14,14 @@ def services_arg_parser(name='BouncyBot', region='us-east-1'):
     parser.add_argument('-t', '--instance-type',
                         help='Instance type for the AMI'
                        )
+    parser.add_argument('--amq-users',
+                        nargs='+',
+                        help='one or more ActiveMQ users to be configured in group-name:user-name format'
+                       )
+    parser.add_argument('--vpc-id',
+                        help='Identifier of the VPC to use instead of creating a new one')
+    parser.add_argument('--subnet-id',
+                        help='Identifier of the subnet to use inside the VPC')
     parser.add_argument('key_name',
                         help='Key pair for which you have the private key to connect to the messaging server'
                        )
@@ -109,6 +118,7 @@ class ParserProxy(object):
         self.options = self.parser.parse_args(args)
         self._set_key_name()
         self._set_update_or_create_predicate()
+        self._set_amq_users_groups()
         return self.options
 
 
@@ -123,3 +133,19 @@ class ParserProxy(object):
             setattr(self.options, 'update_or_create', True)
         else:
             setattr(self.options, 'update_or_create', False)
+
+
+    def _set_amq_users_groups(self):
+        if self.options.amq_users is None:
+            return
+
+        amq_groups_users = [tuple(e.split(':')) for e in self.options.amq_users]
+        setattr(self.options, 'amq_users', tuple(set((e[1] for e in amq_groups_users))))
+
+        def _function(accumulator, element):
+            group, user = element
+            accumulator[group].append(user)
+            return accumulator
+
+        setattr(self.options, 'amq_groups',
+                reduce(_function, amq_groups_users, defaultdict(lambda: [])))

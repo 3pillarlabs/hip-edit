@@ -1,11 +1,12 @@
 """
 AWS Lambda and API Gateway
 """
-from string import Template
 from os import environ
+
+import awscli.clidriver
 import boto3
 import yaml
-import awscli.clidriver
+
 from hip_edit import resource_title
 
 
@@ -57,7 +58,11 @@ def _configure_lambda(template_path, build_context):
         if name in environ:
             lambda_vars[name] = environ[name]
         if name in build_context.lambda_vars():
-            lambda_vars[name] = build_context.lambda_var_get(name)
+            if name == 'npm_config_messaging_password':
+                key = environ['npm_config_messaging_user']
+                lambda_vars[name] = build_context.get(key, group_key=('services', 'activemq', 'users'))
+            else:
+                lambda_vars[name] = build_context.get(name)
     yaml.dump(model, stream=file(template_path, 'w'), default_flow_style=False)
 
 

@@ -2,13 +2,53 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:700');
 @import "variables";
 @import "mixins";
+@import "theme";
+
+@include viewport();
 
 html {
   @include define-type-sizing;
   @include typeface(text);
-  @include color-theme(text, $color-palette);
 };
 
 h1, h2, h3 {
   @include typeface(heading);
+}
+
+nav {
+  min-height: $min-nav-height;
+}
+
+main {
+  min-height: $min-main-height;
+}
+
+footer {
+  min-height: $min-footer-height;
+}
+
+form {
+  fieldset {
+    padding: 2.0rem 1.5rem;
+    .stretch-children {
+      * {
+        width: 100%;
+      }
+    }
+    .action-bar {
+      padding-top: 1.5rem;
+    }
+    mat-form-field {
+      margin-top: 1.5rem;
+    }
+  }
+}
+
+.row {
+  @for $offset from 1 to 30 {
+    .vh-offset-#{$offset} {
+      top: 3vh * $offset;
+      position: relative;
+    }
+  }
 }

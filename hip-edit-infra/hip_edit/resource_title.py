@@ -43,3 +43,8 @@ def packaged_path(template_path, token='packaged'):
     fn, ext = re.split('\.', bn)
     fp = os.path.join(dn, fn)
     return "{0}-{1}.{2}".format(fp, token, ext)
+
+
+def subnet_title(prefix, index=1):
+    """Subnet title"""
+    return "%sPublicSubnet%d" % (prefix, index)

@@ -1,15 +1,8 @@
 $base-unit: rem;
-$color-palette: (
-  bg: #fff,
-  fg: #394A58,
-);
-$font-family-heading: "Roboto Condensed", "Arial Black";
-$font-family-text: Roboto, Arial;
-$typefaces: (
-  heading: (
-    font-family: $font-family-heading,
-  ),
-  text: (
-    font-family: $font-family-text,
-  )
-);
+
+$min-nav-height: 10vh;
+$min-footer-height: 20vh;
+$min-main-height: 70vh;
+
+$viewport-padding: 1vw;
+
