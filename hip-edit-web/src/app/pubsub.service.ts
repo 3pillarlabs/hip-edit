@@ -65,7 +65,9 @@ export class PubsubService {
   onStompConnectOk(observer: Observer<EditorEvent>, destination: string): Function {
     return () => {
       const topic = `/topic/${destination}`;
-      this.stompClient.subscribe(topic, this.onMessage(observer));
+      this.stompClient.subscribe(topic, this.onMessage(observer), {
+        'activemq.retroactive': true
+      });
     }
   }
 

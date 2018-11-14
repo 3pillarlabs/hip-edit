@@ -51,7 +51,7 @@ export default class TopicService {
          return;
        }
        try {
-         const frame = client.send({destination: topic});
+         const frame = client.send({destination: topic, persistent: true});
          frame.end(doc);
          client.disconnect(resolve);
        } catch (e) {

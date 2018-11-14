@@ -25,7 +25,7 @@ const AppConfig: {
 
   serverPort: Number(configValue('server_port', 9000)),
 
-  editorTopicDomain: configValue('editor_topic_domain'),
+  editorTopicDomain: configValue('messaging_editor_topic_domain'),
 
   messaging: {
     host: String(configValue('messaging_host', 'localhost')),

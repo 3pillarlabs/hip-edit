@@ -60,4 +60,8 @@ export class AppPage {
       return undefined;
     }
   }
+
+  async closeBrowserWindow() {
+    await this.browser.close();
+  }
 }

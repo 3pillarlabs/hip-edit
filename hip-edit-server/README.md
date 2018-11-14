@@ -10,7 +10,6 @@ Prereq:
 
 ActiveMQ version is 5.x.
 
-
 Global dependencies are resolved with ``npx``, thus there are no binaries on your global path. Install all dependencies with:
 
 ```bash
@@ -46,8 +45,8 @@ Run integration tests:
 Install Docker before the next steps.
 
 ```bash
-# Apache ActiveMQ with zero security as a Docker daemon
-docker run -it --rm --name='activemq' -p 61613:61613 -p 61614:61614 -d webcenter/activemq
+docker run -it --rm --name='activemq' -p'61613:61613' -p'61614:61614' \
+-v "$PWD/artifacts/activemq:/opt/activemq/conf" -d webcenter/activemq
 npm run integration:spec
 docker stop activemq
 ```
@@ -55,13 +54,13 @@ docker stop activemq
 AWS SAM, install from https://github.com/awslabs/aws-sam-cli
 
 ```bash
-# This will take long the first time it is run because it dowloads a docker image.
+# This will take long for the first request because it dowloads a docker image on getting a request.
 npm run integration:spec:sam:start
 # on another terminal
 npm run integration:spec:sam
 # back to first terminal
-# Ctrl+C
-npm run docker-activemq:stop
+# Ctrl+C (stops the sam local API listener)
+docker stop activemq
 ```
 
 # Configuration
@@ -110,7 +109,7 @@ npm_config_messaging_user=system npm_config_messaging_password=manager npm start
 Hip Edit will create topics for broadcasting editor events. Topics can be created by both publishers and consumers (or guests). A future version will only limit to publishers. For now, limit the topic creation to a specific domain.
 
 ```xml
-<!-- sample ActiveMQ (activemq.xml) configuration snippet -->
+<!-- sample ActiveMQ (activemq.xml) configuration snippet shows authorization -->
 <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}">
   <plugins>
     <authorizationPlugin>
@@ -134,7 +133,7 @@ Configure the domain (default is undefined):
 ```bash
 npm_config_messaging_user=system \
 npm_config_messaging_password=manager \
-npm_config_editor_topic_domain='HipEdit.Editor' \
-npm_config_messaging_host=52.200.64.50 \
+npm_config_messaging_editor_topic_domain='HipEdit.Editor' \
+npm_config_messaging_host=activemq.aws.com \
 npm start
 ```
