@@ -9,6 +9,31 @@ from mock import MagicMock
 from hip_edit import cf_template_builder
 from hip_edit import cf_driver
 
+FIELD_NAMES = ['name', 'region', 'instance_type', 'key_name', 'domain_suffix', 'vpc_id', 'subnet_id',
+               'stack_halt']
+CliOptions = namedtuple('CliOptions', FIELD_NAMES)
+
+def _make_cli_options(name='Plop',
+                      region='eu-west-1',
+                      instance_type='t2.micro',
+                      key_name='plop',
+                      domain_suffix=None,
+                      vpc_id=None,
+                      subnet_id=None,
+                      stack_halt=MagicMock(return_value=False)):
+
+    return CliOptions(
+        name=name,
+        region=region,
+        instance_type=instance_type,
+        key_name=key_name,
+        domain_suffix=domain_suffix,
+        vpc_id=vpc_id,
+        subnet_id=subnet_id,
+        stack_halt=stack_halt
+    )
+
+
 
 class CfDriverTests(unittest.TestCase):
     """
@@ -16,14 +41,7 @@ class CfDriverTests(unittest.TestCase):
     """
 
     def setUp(self):
-        CliOptions = namedtuple('CliOptions', ['name', 'region', 'instance_type', 'key_name', 'domain_suffix'])
-        self.cli_options = CliOptions(
-            name='Plop',
-            region='eu-west-1',
-            instance_type='t2.micro',
-            key_name='plop',
-            domain_suffix=None
-        )
+        self.cli_options = _make_cli_options()
         self.template = cf_template_builder.build(self.cli_options)
 
 
@@ -100,3 +118,10 @@ class CfDriverTests(unittest.TestCase):
         client.update_stack = MagicMock(return_value={'StackId': 'MockStack-1'})
 
         cf_driver.update_or_create_cf_template(__name__, self.template, client=client, retry_seconds=0)
+
+
+    def test_stack_halt(self):
+        """Should not attach the EIP"""
+        self.cli_options = _make_cli_options(stack_halt=MagicMock(return_value=True))
+        template = cf_template_builder.build(self.cli_options)
+        assert 'MessageServerHost' not in template.to_dict()['Outputs']
