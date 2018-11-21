@@ -20,11 +20,22 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 ## Running end-to-end tests
 
-Start `hip-edit-server` API services with - `npm run integration:spec:sam:start`.
+Start ActiveMQ docker container -
+```bash
+cd hip-edit-infra/
+docker run -it --rm --name='activemq' -p'61613:61613' -p'61614:61614' \
+-v "$PWD/artifacts/activemq:/opt/activemq/conf" -d webcenter/activemq
+```
 
-Run `ng e2e --proxy-conf sam-local.proxy.conf.json` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Start `hip-edit-server` API services -
+```bash
+cd ../hip-edit-server
+npm run integration:spec:sam:start
+```
 
-Stop the API services by `npm run docker-activemq:stop`.
+On another terminal, run `ng e2e --proxy-conf proxy.conf.json --env e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+
+Stop the API services by `docker stop activemq`.
 
 ## Further help
 

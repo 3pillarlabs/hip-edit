@@ -25,21 +25,21 @@ class CliArgParserTest(unittest.TestCase):
         assert options.instance_type is None
         assert options.dry_run is False
         assert options.verbose is False
-        assert options.stack_operation == 'update_or_create'
+        assert options.stack_operation == 'up'
 
 
     def test_parser_options_independent_overrides(self):
         """
         Tests if parser options are configured correctly only when independent options are overridden.
         """
-        argv = '-n Mars -r us-east-1 -t cx4.large -d -V --mode delete KeyPair'.split()
+        argv = '-n Mars -r us-east-1 -t cx4.large -d -V --command down KeyPair'.split()
         options = self.services_parser.parse_args(args=argv)
         assert options.name == 'Mars'
         assert options.region == 'us-east-1'
         assert options.instance_type == 'cx4.large'
         assert options.dry_run is True
         assert options.verbose is True
-        assert options.stack_operation == 'delete'
+        assert options.stack_operation == 'down'
 
 
     def test_services_users(self):
@@ -69,3 +69,12 @@ class CliArgParserTest(unittest.TestCase):
         assert 'guests' in options.amq_groups
         assert 'fred' in options.amq_groups['guests']
         assert 'alice' in options.amq_groups['guests']
+
+
+    def test_halt_mode(self):
+        """
+        Tests the halt option presence.
+        """
+        argv = '--command halt KeyPair'.split()
+        options = self.services_parser.parse_args(args=argv)
+        assert options.stack_operation == 'halt'

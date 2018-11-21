@@ -27,6 +27,16 @@ def check_instance_status(instance_id,
     if instance.state['Name'] == 'stopped':
         LOGGER.info('ActiveMQ instance is stopped, starting...')
         instance.start()
+        instance.wait_until_running(
+            Filters=[
+                {
+                    'Name': 'instance-id',
+                    'Values': [
+                        instance_id
+                    ]
+                }
+            ]
+        )
 
     elapsed_seconds = 0
     up_and_running = False
@@ -139,6 +149,28 @@ def configure_groups(ssh_client, distribution, templates_path, groups, template_
     _put_groups_properties_file(out_lines, ssh_client, distribution)
     LOGGER.debug('Configured activemq groups')
     return groups_users
+
+
+def halt_instance(instance_id, ec2=boto3.resource('ec2')):
+    """Halt/Stop the instance"""
+    instance = ec2.Instance(instance_id)
+    if instance.state['Name'] != 'running' and instance.state['Name'] != 'pending':
+        LOGGER.info("Instance %s is already stopped or going to stop.", instance_id)
+        return
+    response = instance.stop()
+    LOGGER.debug(response)
+    LOGGER.info("Waiting for instance %s to stop...", instance_id)
+    instance.wait_until_stopped(
+        Filters=[
+            {
+                'Name': 'instance-id',
+                'Values': [
+                    instance_id
+                ]
+            }
+        ]
+    )
+    LOGGER.info("Instance %s stopped OK", instance_id)
 
 
 def _generate_property_literals(inputs):

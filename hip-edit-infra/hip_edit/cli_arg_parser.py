@@ -69,10 +69,10 @@ def web_arg_parser(name='BouncyBot', region='us-east-1'):
 
 
 def _add_common_options(parser, **kwargs):
-    parser.add_argument('-m', '--mode',
-                        default='update_or_create',
-                        choices=['update_or_create', 'delete'],
-                        help='Stack operation to execute'
+    parser.add_argument('-c', '--command',
+                        default='up',
+                        choices=['up', 'down', 'halt'],
+                        help='Stack operation to execute, default is "up"'
                        )
     parser.add_argument('-n', '--name',
                         default=kwargs['name'],
@@ -117,7 +117,7 @@ class ParserProxy(object):
         """
         self.options = self.parser.parse_args(args)
         self._set_key_name()
-        self._set_update_or_create_predicate()
+        self._set_stack_operation()
         self._set_amq_users_groups()
         return self.options
 
@@ -127,12 +127,26 @@ class ParserProxy(object):
             setattr(self.options, 'key_name', "%sKeyPair" % self.options.name)
 
 
-    def _set_update_or_create_predicate(self):
-        setattr(self.options, 'stack_operation', self.options.mode)
-        if self.options.stack_operation == 'update_or_create':
-            setattr(self.options, 'update_or_create', True)
-        else:
-            setattr(self.options, 'update_or_create', False)
+    def _set_stack_operation(self):
+        setattr(self.options, 'stack_operation', self.options.command)
+
+        def stack_up():
+            """True if stack needs to be created or updated"""
+            return self.options.command == 'up'
+
+
+        def stack_down():
+            """True if stack needs to be destroyed"""
+            return self.options.command == 'down'
+
+
+        def stack_halt():
+            """True if stack needs to be halted"""
+            return self.options.command == 'halt'
+
+        setattr(self.options, stack_up.__name__, stack_up)
+        setattr(self.options, stack_down.__name__, stack_down)
+        setattr(self.options, stack_halt.__name__, stack_halt)
 
 
     def _set_amq_users_groups(self):

@@ -1,6 +1,11 @@
+import { randomBytes } from 'crypto';
 import { AppPage } from './app.po';
 
 describe('hip-edit-web user', () => {
+  const sessionTokenFn = () => {
+    return randomBytes(16).toString('hex');
+  }
+
   let page: AppPage;
 
   beforeEach(() => {
@@ -14,17 +19,38 @@ describe('hip-edit-web user', () => {
 
   it('should be able to join an existing session', () => {
     page.navigateTo();
-    expect(page.joinSession('John Doe', 'ed59e0d5-c9df-4d08-9345-d35ab2bd83e3')).toBeTruthy();
+    expect(page.joinSession('John Doe', sessionTokenFn())).toBeTruthy();
+  });
+
+  it('should see the state of the editor when they join', () => {
+    let sessionToken = sessionTokenFn();
+    page.navigateTo();
+    page.joinSession('John Doe', sessionToken);
+    let input =
+    `public class AppFinderBean implements InitializingBean {
+
+    }`;
+    page.setCode(input);
+    let newPage = page.cloneNew().switch();
+    newPage.navigateTo();
+    newPage.joinSession('Jane Doe', sessionToken);
+    newPage.wait(2);
+    expect(newPage.getCode()).toMatch(input);
+    newPage.closeBrowserWindow();
   });
 
   it('should have editor changes broadcast to connected sessions', () => {
+    let sessionToken = sessionTokenFn();
     let inputCode = `class Foo
       end`;
     let newPage = page.cloneNew().switch();
     newPage.navigateTo();
+    newPage.joinSession('Jane Doe', sessionToken)
     page.switch().navigateTo();
+    page.joinSession('John Doe', sessionToken)
     page.setCode(inputCode);
     newPage.switch().wait(2);
     expect(newPage.getCode()).toMatch(inputCode);
+    newPage.closeBrowserWindow();
   });
 });

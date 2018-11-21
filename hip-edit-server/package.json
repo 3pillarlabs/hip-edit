@@ -25,14 +25,12 @@
     "transpile:spec": "run-s flow jasmine",
     "flow:stop": "flow stop",
     "jasmine": "node spec/unit/run.js",
-    "integration:spec:sam:start": "run-s build-lambda docker-activemq sam-local-api",
+    "integration:spec:sam:start": "run-s build-lambda sam-local-api",
     "integration:spec": "run-s build integration:jasmine",
     "integration:spec:sam": "run-s integration:jasmine:sam",
     "integration:jasmine": "node spec/integration/run.js",
-    "integration:jasmine:sam": "npm_package_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) npm_package_config_server_port=3000 node spec/integration/run-sam.js",
-    "docker-activemq": "docker ps | grep activemq > /dev/null 2>&1 || docker run -it --rm --name='activemq' -p'61613:61613' -p'61614:61614' -d webcenter/activemq",
-    "docker-activemq:stop": "docker stop activemq",
-    "sam-local-api": "npm_package_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) sam --debug local start-api --skip-pull-image"
+    "integration:jasmine:sam": "npm_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) node spec/integration/run-sam.js",
+    "sam-local-api": "npm_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) sam --debug local start-api --skip-pull-image -p 9000"
   },
   "author": "Sayantam Dey <sayantam@gmail.com>",
   "license": "ISC",
@@ -56,8 +54,9 @@
     "messaging": {
       "host": "localhost",
       "port": 61613,
-      "user": null,
-      "password": null
+      "user": "e2e_producer",
+      "password": "password",
+      "editor_topic_domain": "HipEdit.Editor"
     }
   },
   "devDependencies": {

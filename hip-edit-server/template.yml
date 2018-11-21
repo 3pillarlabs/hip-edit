@@ -18,9 +18,9 @@ Resources:
           npm_config_messaging_host: activemq
           npm_config_messaging_port: 61613
           npm_config_logger_console_level: debug
-          npm_config_editor_topic_domain: ''
-          npm_config_messaging_user: ''
-          npm_config_messaging_password: ''
+          npm_config_messaging_editor_topic_domain: HipEdit.Editor
+          npm_config_messaging_user: e2e_producer
+          npm_config_messaging_password: password
       Events:
         ApiRoot:
           Type: Api

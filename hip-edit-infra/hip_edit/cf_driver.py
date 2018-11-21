@@ -19,14 +19,15 @@ def execute(cli_options, template):
     """
     stack_name = "%sStack" % cli_options.name
     if not cli_options.dry_run:
-        if cli_options.update_or_create:
+        if cli_options.stack_up() or cli_options.stack_halt():
             return update_or_create_cf_template(stack_name, template, role_arn=cli_options.role_arn)
-        else:
+        elif cli_options.stack_down():
             _delete_cf_stack(stack_name, role_arn=cli_options.role_arn)
     else:
         logger.debug(template.to_yaml())
         _check_credentials()
         _validate_cf_template(template)
+    return None
 
 
 def update_or_create_cf_template(stack_name, template,

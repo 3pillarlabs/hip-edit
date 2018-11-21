@@ -11,15 +11,15 @@ from hip_edit.resources import vpc
 LOGGER = log.get_stream_logger(__name__)
 
 
-def build(cli_options):
+def build(cli_options, new_template=None):
     """
     Constructs and returns the CF template.
     """
     prefix = cli_options.name
-    t = Template(Description="Infrastructure for %s" % prefix)
-    _build_aws_cf_template(cli_options, template=t)
-    LOGGER.debug(t.to_yaml())
-    return t
+    template = new_template or Template(Description="Infrastructure for %s" % prefix)
+    _build_aws_cf_template(cli_options, template)
+    LOGGER.debug(template.to_yaml())
+    return template
 
 
 def _build_aws_cf_template(cli_options, template):
@@ -44,15 +44,16 @@ def _build_aws_cf_template(cli_options, template):
         template.add_parameter(subnet_param)
 
     vpc_resource, subnet_resource, security_group_resource = vpc.build(prefix, template,
-                                                                        vpc_param=vpc_param,
-                                                                        subnet_param=subnet_param)
+                                                                       vpc_param=vpc_param,
+                                                                       subnet_param=subnet_param)
     instance.build(prefix, template,
                    vpc=vpc_resource,
                    subnet=subnet_resource,
                    security_group=security_group_resource,
                    region_code=cli_options.region,
                    instance_type=cli_options.instance_type,
-                   key_name=cli_options.key_name
+                   key_name=cli_options.key_name,
+                   attach_eip=False if cli_options.stack_halt() else True
                   )
     bucket.build(prefix, template, suffix=cli_options.domain_suffix)
 
