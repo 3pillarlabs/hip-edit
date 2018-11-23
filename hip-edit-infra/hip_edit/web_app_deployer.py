@@ -30,24 +30,24 @@ def write_prod_env(build_context, out_file_path):
         hipEditApiPrefix: '$ApiUrl',
         stomp: {
             server: {
-                host: '$npm_config_messaging_host',
+                host: '$messaging_host',
                 port: 61614,
                 headers: {
-                    login: '$npm_config_messaging_user',
-                    passcode: '$npm_config_messaging_password',
+                    login: '$messaging_user',
+                    passcode: '$messaging_password',
                 },
-                domain: '$npm_config_editor_topic_domain',
+                domain: '$messaging_editor_topic_domain',
             }
         }
     };
     """
     template_vars = dict(ApiUrl=build_context.get('ApiUrl'),
-                         npm_config_messaging_host=build_context.get('npm_config_messaging_host'),
-                         npm_config_messaging_user=environ.get('npm_config_messaging_user'),
-                         npm_config_editor_topic_domain=environ.get('npm_config_editor_topic_domain'))
+                         messaging_host=build_context.get('npm_config_messaging_host'),
+                         messaging_user=environ.get('npm_config_messaging_user'),
+                         messaging_editor_topic_domain=environ.get('npm_config_messaging_editor_topic_domain'))
 
-    template_vars['npm_config_messaging_password'] = build_context.get(template_vars['npm_config_messaging_user'],
-                                                                       group_key=('services', 'activemq', 'users'))
+    template_vars['messaging_password'] = build_context.get(template_vars['npm_config_messaging_user'],
+                                                            group_key=('services', 'activemq', 'users'))
 
     conf = Template(template=conf_template).substitute(template_vars)
     with open(out_file_path, 'w') as outf:
