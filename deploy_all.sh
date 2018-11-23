@@ -11,7 +11,7 @@ if [ ! -e $key_dir_path ]; then
 fi
 
 if [ ! -e $key_path ]; then
-  aws s3 cp s3://3pillar-eng-tools-secrets/$key_file $key_path || exit $?
+  aws s3 cp s3://$SECRETS_BUCKET_NAME/$key_file $key_path || exit $?
   chmod 400 $key_path || exit $?
 fi
 
