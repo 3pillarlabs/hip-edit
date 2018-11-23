@@ -2,8 +2,7 @@
 
 # Deploys all module dependencies
 key_dir_path="~/.ssh"
-key_name="BouncyBotKeyPair"
-key_file="${key_name}.pem"
+key_file="$KEY_PAIR_NAME.pem"
 
 mkdir -p $key_dir_path || exit $?
 chmod 700 $key_dir_path || exit $?
@@ -16,7 +15,7 @@ npm run build-lambda || exit $?
 cd ../hip-edit-infra
 
 python services.py --name EngTools -s 3pillar-eng -u $CF_ROLE_ARN $* \
---vpc-id $SERVICES_VPC_ID --subnet-id $SERVICES_SUBNET_ID ${key_name} \
+--vpc-id $SERVICES_VPC_ID --subnet-id $SERVICES_SUBNET_ID $KEY_PAIR_NAME \
 --amq-users publishers:$PUBLISHER_USER guests:$CONSUMER_USER || exit $?
 
 npm_config_messaging_user=$PUBLISHER_USER python sam.py --name EngTools -u $CF_ROLE_ARN $* \
