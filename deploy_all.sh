@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
 # Deploys all module dependencies
-key_dir_path="~/.ssh"
+key_dir_path="$HOME/.ssh"
 key_file="$KEY_PAIR_NAME.pem"
+key_path="$key_dir_path/$key_file"
 
-mkdir -p $key_dir_path || exit $?
-chmod 700 $key_dir_path || exit $?
-aws s3 cp s3://3pillar-eng-tools-secrets/$key_file $key_dir_path/$key_file
-chmod 400 $key_dir_path/$key_file
+if [ ! -e $key_dir_path ]; then
+  mkdir -p $key_dir_path || exit $?
+  chmod 700 $key_dir_path || exit $?
+fi
+
+if [ ! -e $key_path ]; then
+  aws s3 cp s3://3pillar-eng-tools-secrets/$key_file $key_path || exit $?
+  chmod 400 $key_path || exit $?
+fi
 
 cd hip-edit-server
 npm run build-lambda || exit $?
