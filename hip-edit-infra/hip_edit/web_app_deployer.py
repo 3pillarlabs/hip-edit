@@ -46,7 +46,7 @@ def write_prod_env(build_context, out_file_path):
                          messaging_user=environ.get('npm_config_messaging_user'),
                          messaging_editor_topic_domain=environ.get('npm_config_messaging_editor_topic_domain'))
 
-    template_vars['messaging_password'] = build_context.get(template_vars['npm_config_messaging_user'],
+    template_vars['messaging_password'] = build_context.get(template_vars['messaging_user'],
                                                             group_key=('services', 'activemq', 'users'))
 
     conf = Template(template=conf_template).substitute(template_vars)
