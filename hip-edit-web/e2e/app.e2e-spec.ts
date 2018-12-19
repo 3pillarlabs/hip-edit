@@ -53,4 +53,13 @@ describe('hip-edit-web user', () => {
     expect(newPage.getCode()).toMatch(inputCode);
     newPage.closeBrowserWindow();
   });
+
+  it('should be able to create new session', async (done) => {
+    page.navigateTo();
+    let loginPage = await page.createNewSession();
+    expect(loginPage).toBeTruthy();
+    await loginPage.login('admin', 'password');
+    expect(page.getCode()).toBeDefined();
+    done();
+  });
 });

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rarity - Login</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+</head>
+<body>
+  <form method="POST">
+    <fieldset>
+      <legend>Login</legend>
+      <label>Username: </label>
+      <input type="text" name="userName" /> <br/>
+      <label>Password: </label>
+      <input type="password" name="password" /> <br/>
+      <button type="submit">Login</button>
+    </fieldset>
+  </form>
+  <script>
+    var actionUrl = new URL(window.location.href);
+    document.getElementsByTagName('form').item(0).action = actionUrl.searchParams.get('action');
+  </script>
+</body>
+</html>

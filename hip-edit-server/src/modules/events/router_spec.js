@@ -1,7 +1,7 @@
 import express from 'express';
 import {json} from 'body-parser';
 import agent from 'supertest';
-import CodeEventsRouter from './controller';
+import CodeEventsRouter from './router';
 import EditorEventService from './service';
 
 describe(CodeEventsRouter, () => {
