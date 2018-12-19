@@ -5,6 +5,8 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { EditorEvent } from './code-editor-event';
 import { EditorEventService } from './editor-event.service';
 import { PubsubService } from '../pubsub.service';
+import { AppStateService } from '../app-state.service';
+import { AppStateKey } from '../app-state-key';
 
 @Component({
   selector: 'app-code-editor',
@@ -23,12 +25,14 @@ export class CodeEditorComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private editorEventService: EditorEventService,
     private pubsubService: PubsubService,
-    private ngZone: NgZone) { }
+    private ngZone: NgZone,
+    private appStateService: AppStateService) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe({
       next: (params: ParamMap) => {
         this.sessionToken = params.get('sessionToken');
+        this.appStateService.setValue(AppStateKey.SessionToken, this.sessionToken);
         console.debug(`sessionToken: ${this.sessionToken}`);
       },
       error: (error) => {

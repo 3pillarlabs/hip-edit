@@ -8,6 +8,7 @@ import { CodeEditorComponent } from './code-editor.component';
 import { MaterialModule } from '../material.module';
 import { EditorEventService } from './editor-event.service';
 import { PubsubService } from '../pubsub.service';
+import { AppStateService } from '../app-state.service';
 
 describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;
@@ -52,6 +53,10 @@ describe('CodeEditorComponent', () => {
               }
             }
           }
+        },
+        {
+          provide: AppStateService,
+          useValue: new AppStateService()
         }
       ]
     })
