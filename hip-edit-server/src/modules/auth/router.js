@@ -5,6 +5,8 @@ import {urlencoded} from 'body-parser';
 import uuid from 'uuid';
 import passport from 'passport';
 import localAuthStrategy from './local-auth-strategy';
+import googleOAuth2Strategy from './google-oauth2-strategy';
+import AppConfig from '../app-config';
 import logger from '../logging';
 
 /**
@@ -18,6 +20,7 @@ export default class AuthRouter {
     const router = express.Router();
     router.use(passport.initialize());
     this.addLocalStrategy(router);
+    this.addGoogleAuthStrategy(router);
     return router;
   }
 
@@ -40,6 +43,32 @@ export default class AuthRouter {
     });
 
     logger.info('Added login auth strategy');
+  }
+
+  /**
+   * Add Google Auth Strategy
+   * @param {express.Router} router
+   */
+  addGoogleAuthStrategy(router: express.Router) {
+    if (! googleOAuth2Strategy(passport)) return;
+
+    router.get('/google',
+      passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
+    );
+
+    router.get('/google/callback',
+      passport.authenticate('google', {session: false, failureRedirect: '/'}),
+      (req, res) => {
+        logger.debug(req.user);
+        let host: string | void = undefined;
+        if (AppConfig.auth && AppConfig.auth.google) {
+          host = AppConfig.auth.google.appHost;
+        }
+        this.setActiveSession(res, host);
+      }
+    );
+
+    logger.info('Added google auth strategy');
   }
 
   /**
