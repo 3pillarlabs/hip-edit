@@ -64,10 +64,16 @@
       },
       "google": {
         "enabled": true,
-        "clientID": "",
-        "clientSecret": "",
-        "callbackURL": "",
-        "appHost": ""
+        "client": {
+          "id": "clientID",
+          "secret": "clientSecret"
+        },
+        "callback": {
+          "url": "callbackURL"
+        },
+        "app": {
+          "host": "appHost"
+        }
       }
     }
   },

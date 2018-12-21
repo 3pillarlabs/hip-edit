@@ -13,12 +13,52 @@ import logger from '../logging';
  * Auth router
  */
 export default class AuthRouter {
+  localAuthConfig: Object;
+  googleAuthConfig: Object;
+  _passportRef: passport;
+
+  /**
+   * @param {Object} localAuthConfig
+   * @param {Object} googleAuthConfig
+   * Constructor
+   */
+  constructor(localAuthConfig: ?Object, googleAuthConfig: ?Object) {
+    if (localAuthConfig) {
+      this.localAuthConfig = localAuthConfig;
+    } else if (AppConfig.auth && AppConfig.auth.local) {
+      this.localAuthConfig = AppConfig.auth.local;
+    }
+
+    if (googleAuthConfig) {
+      this.googleAuthConfig = googleAuthConfig;
+    } else if (AppConfig.auth && AppConfig.auth.google) {
+      this.googleAuthConfig = AppConfig.auth.google;
+    }
+
+    this._passportRef = passport;
+  }
+
+  /**
+   * @param {passport} newPassportRef
+   */
+  set passportRef(newPassportRef: passport | void) {
+    this._passportRef = newPassportRef;
+    logger.debug(`set new passport ref: ${this._passportRef || 'undefined'}`);
+  }
+
+  /**
+   * @return {passport}
+   */
+  get passportRef(): passport {
+    return this._passportRef;
+  }
+
   /**
    * @return {express.Router} router
    */
   router(): express.Router {
     const router = express.Router();
-    router.use(passport.initialize());
+    router.use(this._passportRef.initialize());
     this.addLocalStrategy(router);
     this.addGoogleAuthStrategy(router);
     return router;
@@ -29,10 +69,10 @@ export default class AuthRouter {
    * @param {express.Router} router
    */
   addLocalStrategy(router: express.Router) {
-    if (! localAuthStrategy(passport)) return;
+    if (!localAuthStrategy(this._passportRef, this.localAuthConfig)) return;
 
     router.post('/login', urlencoded({extended: true}), (req, res, next) => {
-      passport.authenticate('local', {session: false}, (err, user, info) => {
+      this._passportRef.authenticate('local', {session: false}, (err, user, info) => {
         if (err) return next(err);
         if (!user) {
           res.status(401).end();
@@ -50,21 +90,17 @@ export default class AuthRouter {
    * @param {express.Router} router
    */
   addGoogleAuthStrategy(router: express.Router) {
-    if (! googleOAuth2Strategy(passport)) return;
+    if (! googleOAuth2Strategy(this._passportRef, this.googleAuthConfig)) return;
 
     router.get('/google',
-      passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
+      this._passportRef.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
     );
 
     router.get('/google/callback',
-      passport.authenticate('google', {session: false, failureRedirect: '/'}),
+      this._passportRef.authenticate('google', {session: false, failureRedirect: '/'}),
       (req, res) => {
         logger.debug(req.user);
-        let host: string | void = undefined;
-        if (AppConfig.auth && AppConfig.auth.google) {
-          host = AppConfig.auth.google.appHost;
-        }
-        this.setActiveSession(res, host);
+        this.setActiveSession(res, this.googleAuthConfig.appHost);
       }
     );
 

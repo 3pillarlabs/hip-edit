@@ -26,7 +26,14 @@ const AppConfig: {
   messaging: TopicServiceConfigProperties,
   auth?: {
     local?: {enabled: boolean, db: {username: string, password: string}[]},
-    google?: {enabled: boolean, clientID: string, clientSecret: string, callbackURL: string, appHost: string}
+    google?: {
+      enabled: boolean,
+      clientID: string,
+      clientSecret: string,
+      callbackURL: string,
+      appHost: string,
+      prompt: string,
+    }
   }
 } = {
   logLevel: String(configValue('logger_console_level', 'debug')),
@@ -51,10 +58,11 @@ const AppConfig: {
     },
     google: {
       enabled: Boolean(configValue('auth_google_enabled', true)),
-      clientID: String(configValue('auth_google_clientID')),
-      clientSecret: String(configValue('auth_google_clientSecret')),
-      callbackURL: String(configValue('auth_google_callbackURL')),
-      appHost: String(configValue('auth_google_appHost')),
+      clientID: String(configValue('auth_google_client_id')),
+      clientSecret: String(configValue('auth_google_client_secret')),
+      callbackURL: String(configValue('auth_google_callback_url')),
+      appHost: String(configValue('auth_google_app_host')),
+      prompt: 'consent select_account',
     },
   },
 };
