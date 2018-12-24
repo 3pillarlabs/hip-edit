@@ -50,5 +50,17 @@ form {
       top: 3vh * $offset;
       position: relative;
     }
+
+    .fixed-height-#{$offset} {
+      height: 1rem * $offset;
+    }
   }
+}
+
+.panel {
+  margin: 1rem 0;
+}
+
+.mat-card-error {
+  background-color: $red;
 }

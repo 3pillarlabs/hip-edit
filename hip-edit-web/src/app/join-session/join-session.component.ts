@@ -3,6 +3,7 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CodeSession } from './data-model';
+import { JoinSessionService } from './join-session.service';
 
 @Component({
   selector: 'app-join-session',
@@ -11,10 +12,12 @@ import { CodeSession } from './data-model';
 })
 export class JoinSessionComponent implements OnInit {
   joinSessionForm: FormGroup;
+  invalidSessionToken: boolean = false;
 
   constructor(private router: Router,
               private fb: FormBuilder,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private joinSessionService: JoinSessionService) {
   }
 
   ngOnInit() {
@@ -42,6 +45,7 @@ export class JoinSessionComponent implements OnInit {
   }
 
   onSubmit() {
+    this.invalidSessionToken = false;
     console.debug(`this.joinSessionForm.valid: ${this.joinSessionForm.valid}`);
     if (this.joinSessionForm.invalid) {
       console.debug(this.joinSessionForm.errors);
@@ -52,6 +56,18 @@ export class JoinSessionComponent implements OnInit {
     const sessionToken = formModel.sessionToken;
     const userAlias = formModel.userAlias;
     console.debug(`sessionToken: ${sessionToken}, userAlias: ${userAlias}`);
-    return this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+    this.joinSessionService.join(sessionToken, userAlias).subscribe({
+      next: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]),
+      error: (error) => {
+        console.error(error);
+        this.invalidSessionToken = true;
+      }
+    });
+  }
+
+  onChangeSessionToken(value: string) {
+    if (value.trim().length == 0) {
+      this.invalidSessionToken = false;
+    }
   }
 }

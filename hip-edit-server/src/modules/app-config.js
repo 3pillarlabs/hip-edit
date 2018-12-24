@@ -33,14 +33,18 @@ const AppConfig: {
       callbackURL: string,
       appHost: string,
       prompt: string,
-    }
+    },
+    agent?: {
+      login: string,
+      passcode: string
+    },
   }
 } = {
   logLevel: String(configValue('logger_console_level', 'debug')),
 
   serverPort: Number(configValue('server_port', 9000)),
 
-  editorTopicDomain: configValue('messaging_editor_topic_domain'),
+  editorTopicDomain: configValue('messaging_editor_topic_domain', 'HipEdit.Editor'),
 
   messaging: {
     host: String(configValue('messaging_host', 'localhost')),
@@ -63,6 +67,10 @@ const AppConfig: {
       callbackURL: String(configValue('auth_google_callback_url')),
       appHost: String(configValue('auth_google_app_host')),
       prompt: 'consent select_account',
+    },
+    agent: {
+      login: String(configValue('auth_agent_login', 'e2e_consumer')),
+      passcode: String(configValue('auth_agent_passcode', 'password')),
     },
   },
 };

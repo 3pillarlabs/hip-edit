@@ -42,7 +42,7 @@
                        <authorizationEntries>
                            <authorizationEntry topic=">" read="admins" write="admins" admin="admins"/>
                            <authorizationEntry topic="ActiveMQ.Advisory.>" read="publishers,guests" write="publishers,guests" admin="publishers,guests" />
-                           <authorizationEntry topic="HipEdit.Editor.>" read="guests,publishers" write="guests,publishers" admin="guests,publishers" />
+                           <authorizationEntry topic="HipEdit.Editor.>" read="guests,publishers" write="publishers" admin="publishers" />
                        </authorizationEntries>
                    </authorizationMap>
                </map>

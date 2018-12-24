@@ -1,7 +1,7 @@
 import { BrowserModule, Title }    from '@angular/platform-browser';
 import { NgModule }                from '@angular/core';
 import { HttpClientModule }        from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule }             from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes }    from '@angular/router';
 
 import { AppComponent }            from './app.component';
@@ -12,6 +12,7 @@ import { PubsubService }           from './pubsub.service';
 import { JoinSessionComponent }    from './join-session/join-session.component';
 import { NewSessionComponent }     from './new-session/new-session.component';
 import { AppStateService }         from './app-state.service';
+import { JoinSessionService }      from './join-session/join-session.service';
 
 const appRoutes: Routes = [
   { path: 'session/:sessionToken', component: CodeEditorComponent,  outlet: 'editors' },
@@ -38,7 +39,8 @@ const appRoutes: Routes = [
     Title,
     EditorEventService,
     PubsubService,
-    AppStateService
+    AppStateService,
+    JoinSessionService
   ],
   bootstrap: [AppComponent]
 })
