@@ -23,8 +23,9 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 Start ActiveMQ docker container -
 ```bash
 cd hip-edit-infra/
+docker network create rarity
 docker run -it --rm --name='activemq' -p'61613:61613' -p'61614:61614' \
--v "$PWD/artifacts/activemq:/opt/activemq/conf" -d webcenter/activemq
+-v "$PWD/artifacts/activemq:/opt/activemq/conf" --network rarity -d webcenter/activemq
 ```
 
 Start `hip-edit-server` API services -

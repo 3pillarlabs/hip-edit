@@ -4,6 +4,7 @@ import _ from 'lodash';
 import {Client} from 'stompit';
 import logger from '../logging';
 import TopicServiceConfig from './topic-service-config';
+import {toError} from '../app-error';
 
 type MessageOptions = {
   expires?: number,
@@ -54,10 +55,10 @@ export default class TopicService {
    */
    delegate(topic: string, doc: string, messageOptions: MessageOptions | void,
             resolve: Function, reject: Function): Function {
-     return (error: Object, client: Client) => {
+     return (error: Error | any, client: Client) => {
        if (error) {
          logger.error(error);
-         reject(error);
+         reject(toError(error));
          return;
        }
        try {
@@ -66,7 +67,7 @@ export default class TopicService {
          client.disconnect(resolve);
        } catch (e) {
          logger.error(e);
-         reject(e);
+         reject(toError(e));
        }
      };
    }
@@ -102,15 +103,15 @@ export default class TopicService {
    * @return {Promise}
    */
   trySubscribeTopic(topic: string,
-                 connectHeaders: {login: string,
-                                  passcode: string} | void = undefined): Promise<void> {
+                    connectHeaders: {login: string,
+                                     passcode: string} | void = undefined): Promise<void> {
     const prefixedTopic = this.prefixTopic(topic);
     const connectConfig = _.assign({}, this.config, {connectHeaders});
     return new Promise((resolve, reject) => {
       this.stompClient
         .connect(connectConfig, (connectError: any, client: Client) => {
           if (connectError) {
-            reject(connectError);
+            reject(toError(connectError));
             return;
           }
           client
@@ -122,7 +123,7 @@ export default class TopicService {
               onError: (error) => {
                 client.disconnect();
                 client.destroy();
-                reject(error);
+                reject(toError(error));
               },
               onReceipt: () => {
                 client.disconnect();

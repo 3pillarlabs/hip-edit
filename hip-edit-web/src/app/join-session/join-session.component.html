@@ -15,14 +15,14 @@
           </div>
           <div class="action-bar">
             <button mat-flat-button color="primary" type="submit" name="joinSession"
-              [disabled]="joinSessionForm.pristine || joinSessionForm.invalid">
+              [disabled]="joinSessionForm.pristine || joinSessionForm.invalid || joinSessionForm.disabled">
               Join
             </button>
           </div>
         </fieldset>
       </form>
     </div>
-    <mat-card *ngIf="invalidSessionToken" class="mat-card-error">
+    <mat-card *ngIf="invalidSessionToken" class="mat-card-message mat-card-error">
       <mat-card-header>
         <div mat-card-avatar>
           <i class="material-icons">error</i>
@@ -30,5 +30,6 @@
         <mat-card-title>Invalid Session Identifier</mat-card-title>
       </mat-card-header>
     </mat-card>
+    <mat-progress-bar color="primary" mode="indeterminate" *ngIf="joinSessionForm.disabled"></mat-progress-bar>
   </div>
 </div>

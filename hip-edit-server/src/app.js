@@ -25,7 +25,7 @@ export function factory(app: express) {
  * Add new endpoints here.
  * @param {express} app Express App
  */
-export function addRoutes(app: express) {
+function addRoutes(app: express) {
   codeEventsRoute(app);
 }
 

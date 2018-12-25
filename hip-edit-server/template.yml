@@ -21,6 +21,14 @@ Resources:
           npm_config_messaging_editor_topic_domain: HipEdit.Editor
           npm_config_messaging_user: e2e_producer
           npm_config_messaging_password: password
+          npm_config_auth_app_host: app_host
+          npm_config_auth_local_enabled: false
+          npm_config_auth_google_enabled: true
+          npm_config_auth_google_client_id: client_id
+          npm_config_auth_google_client_secret: client_secret
+          npm_config_auth_google_callback_url: callback_url
+          npm_config_auth_agent_login: e2e_consumer
+          npm_config_auth_agent_passcode: password
       Events:
         ApiRoot:
           Type: Api

@@ -56,11 +56,15 @@ export class JoinSessionComponent implements OnInit {
     const sessionToken = formModel.sessionToken;
     const userAlias = formModel.userAlias;
     console.debug(`sessionToken: ${sessionToken}, userAlias: ${userAlias}`);
+    this.joinSessionForm.disable();
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
-      next: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]),
+      next: () => {
+        this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+      },
       error: (error) => {
         console.error(error);
         this.invalidSessionToken = true;
+        this.joinSessionForm.enable();
       }
     });
   }

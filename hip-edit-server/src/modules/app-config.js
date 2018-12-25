@@ -31,13 +31,13 @@ const AppConfig: {
       clientID: string,
       clientSecret: string,
       callbackURL: string,
-      appHost: string,
       prompt: string,
     },
     agent?: {
       login: string,
       passcode: string
     },
+    appHost?: string,
   }
 } = {
   logLevel: String(configValue('logger_console_level', 'debug')),
@@ -65,13 +65,13 @@ const AppConfig: {
       clientID: String(configValue('auth_google_client_id')),
       clientSecret: String(configValue('auth_google_client_secret')),
       callbackURL: String(configValue('auth_google_callback_url')),
-      appHost: String(configValue('auth_google_app_host')),
       prompt: 'consent select_account',
     },
     agent: {
       login: String(configValue('auth_agent_login', 'e2e_consumer')),
       passcode: String(configValue('auth_agent_passcode', 'password')),
     },
+    appHost: String(configValue('auth_app_host')),
   },
 };
 

@@ -9,6 +9,7 @@ import googleOAuth2Strategy from './google-oauth2-strategy';
 import AppConfig from '../app-config';
 import logger from '../logging';
 import TopicService from '../messaging/topic-service';
+import {toObject} from '../app-error';
 
 /**
  * Auth router
@@ -17,15 +18,20 @@ export default class AuthRouter {
   topicService: TopicService;
   localAuthConfig: Object;
   googleAuthConfig: Object;
+  appHost: ?string;
   _passportRef: passport;
 
   /**
    * @param {TopicService} topicService
    * @param {Object} localAuthConfig
    * @param {Object} googleAuthConfig
+   * @param {string} appHost
    * Constructor
    */
-  constructor(topicService: TopicService, localAuthConfig: ?Object, googleAuthConfig: ?Object) {
+  constructor(topicService: TopicService,
+              localAuthConfig: ?Object,
+              googleAuthConfig: ?Object,
+              appHost: ?string) {
     this.topicService = topicService;
 
     if (localAuthConfig) {
@@ -40,6 +46,10 @@ export default class AuthRouter {
       this.googleAuthConfig = AppConfig.auth.google;
     }
 
+    this.appHost = appHost;
+    if (!this.appHost && AppConfig.auth) {
+      this.appHost= AppConfig.auth.appHost;
+    }
     this._passportRef = passport;
   }
 
@@ -76,6 +86,7 @@ export default class AuthRouter {
    */
   addLocalStrategy(router: express.Router) {
     if (!localAuthStrategy(this._passportRef, this.localAuthConfig)) return;
+    logger.info('Added login auth strategy');
 
     router.post('/login', urlencoded({extended: true}), (req, res, next) => {
       this._passportRef.authenticate('local', {session: false}, (err, user, info) => {
@@ -87,8 +98,6 @@ export default class AuthRouter {
         this.setActiveSession(res);
       })(req, res, next);
     });
-
-    logger.info('Added login auth strategy');
   }
 
   /**
@@ -97,6 +106,7 @@ export default class AuthRouter {
    */
   addGoogleAuthStrategy(router: express.Router) {
     if (! googleOAuth2Strategy(this._passportRef, this.googleAuthConfig)) return;
+    logger.info('Added google auth strategy');
 
     router.get('/google',
       this._passportRef.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
@@ -106,30 +116,28 @@ export default class AuthRouter {
       this._passportRef.authenticate('google', {session: false, failureRedirect: '/'}),
       (req, res) => {
         logger.debug(req.user);
-        this.setActiveSession(res, this.googleAuthConfig.appHost);
+        this.setActiveSession(res);
       }
     );
-
-    logger.info('Added google auth strategy');
   }
 
   /**
    * Sets the sessionToken.
    * @param {express.Response} res
-   * @param {String} host
    */
-  setActiveSession(res: express.Response, host: string | void = undefined) {
+  setActiveSession(res: express.Response) {
     const sessionId = uuid.v1();
     let topic = this.toTopic(sessionId);
     this.topicService.createTopic(topic)
       .then(() => {
-        const path = host ? `${host}/(editors:session/${sessionId})` : `/(editors:session/${sessionId})`;
-        res.location(path).status(302).end();
+        const path = this.appHost ? `${this.appHost}/(editors:session/${sessionId})` :
+                                    `/(editors:session/${sessionId})`;
+        res.location(path).status(302).json({}).end();
         logger.debug(`set sessionToken to ${sessionId}`);
       })
       .catch((error) => {
         logger.error(error);
-        res.status(500).send(error);
+        res.status(500).json(toObject(error));
       });
   }
 
@@ -162,15 +170,15 @@ export default class AuthRouter {
         this.topicService
           .trySubscribeTopic(topic, connectHeaders)
           .then(() => {
-            res.status(200).end();
+            res.status(200).json({}).end();
           })
           .catch((error) => {
             logger.error(error);
-            res.status(401).end();
+            res.status(401).json(toObject(error)).end();
           });
       } catch (error) {
         logger.error(error);
-        res.status(401).end();
+        res.status(401).json(toObject(error)).end();
       }
     });
   }

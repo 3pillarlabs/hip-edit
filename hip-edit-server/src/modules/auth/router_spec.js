@@ -16,11 +16,10 @@ describe(AuthRouter, () => {
       db: [{username: 'admin', password: 'password'}],
     }, {
       enabled: true,
-      appHost: 'http://localhost:4200',
       clientID: 'spec_client',
       clientSecret: 'spec_secret',
       callbackURL: 'http://localhost:9000/auth/google/callback',
-    });
+    }, 'http://localhost:4200');
   });
 
   it('should initialize', () => {

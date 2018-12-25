@@ -17,9 +17,9 @@ describe('Events API Integration Tests', () => {
           text: 'class Foo',
         })
         .end((error, response) => {
-          expect(error).toBeNull();
-          expect(response.statusCode).toEqual(201);
-          done();
+          expect(error).toBeFalsy();
+          expect(response.status).toEqual(201);
+          done(error);
         });
     });
   });

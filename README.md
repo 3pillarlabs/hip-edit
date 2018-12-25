@@ -43,4 +43,4 @@ There are 3 sub-projects with their own README -
 
 * hip-edit-server - API
 * hip-edit-web - SPA
-* deployment - AWS CloudFormation and SAM
+* hip-edit-infra - AWS CloudFormation and SAM
