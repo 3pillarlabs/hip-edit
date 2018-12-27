@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CodeSession } from './data-model';
 import { JoinSessionService } from './join-session.service';
+import { AppStateService } from '../app-state.service';
+import { AppStateKey } from '../app-state-key';
 
 @Component({
   selector: 'app-join-session',
@@ -17,7 +19,8 @@ export class JoinSessionComponent implements OnInit {
   constructor(private router: Router,
               private fb: FormBuilder,
               private route: ActivatedRoute,
-              private joinSessionService: JoinSessionService) {
+              private joinSessionService: JoinSessionService,
+              private appStateService: AppStateService) {
   }
 
   ngOnInit() {
@@ -26,11 +29,17 @@ export class JoinSessionComponent implements OnInit {
         let sessionToken = params.get('sessionToken');
         this.createForm(sessionToken);
         console.debug(`sessionToken: ${sessionToken}`);
-      },
-      error: (error) => {
-        console.error(error);
       }
     });
+
+    this.route.queryParamMap.subscribe({
+      next: (params: ParamMap) => {
+        if (params.has('bearerToken') && params.has('sessionToken')) {
+          this.appStateService.setValue(AppStateKey.BearerToken, params.get('bearerToken'));
+          this.router.navigate([{ outlets: { editors: ['session', params.get('sessionToken')] } }]);
+        }
+      }
+    })
   }
 
   createForm(sessionToken?: string) {
@@ -58,7 +67,8 @@ export class JoinSessionComponent implements OnInit {
     console.debug(`sessionToken: ${sessionToken}, userAlias: ${userAlias}`);
     this.joinSessionForm.disable();
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
-      next: () => {
+      next: (cs) => {
+        this.appStateService.setValue(AppStateKey.BearerToken, cs.bearerToken);
         this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
       },
       error: (error) => {

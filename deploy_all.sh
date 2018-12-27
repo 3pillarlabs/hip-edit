@@ -24,7 +24,9 @@ python services.py --name EngTools -s 3pillar-eng -u $CF_ROLE_ARN $* \
 --vpc-id $SERVICES_VPC_ID --subnet-id $SERVICES_SUBNET_ID $KEY_PAIR_NAME \
 --amq-users publishers:$PUBLISHER_USER guests:$CONSUMER_USER || exit $?
 
-npm_config_messaging_user=$PUBLISHER_USER python sam.py --name EngTools -u $CF_ROLE_ARN $* \
+npm_config_messaging_user=$PUBLISHER_USER \
+npm_config_auth_agent_login=$CONSUMER_USER \
+python sam.py --name EngTools -u $CF_ROLE_ARN $* \
 ../hip-edit-server/template.yml 3pillar-eng-apps || exit $?
 
 npm_config_messaging_user=$CONSUMER_USER python web.py --name EngTools -e ../hip-edit-web $* || exit $?

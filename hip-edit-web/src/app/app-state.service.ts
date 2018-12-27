@@ -5,7 +5,9 @@ import { AppStateKey } from './app-state-key';
 @Injectable()
 export class AppStateService {
 
- appState: {
+  appKeys: Array<AppStateKey> = [];
+
+  appState: {
     [key: string]: {
       value: any,
       observers: PartialObserver<any>[]
@@ -18,6 +20,7 @@ export class AppStateService {
   setValue(key: AppStateKey, value: any) {
     this.addKey(key);
     this.appState[key]['value'] = value;
+    this.appKeys.push(key);
     this.appState[key]['observers'].forEach(o => o.next(value));
   }
 
@@ -36,5 +39,9 @@ export class AppStateService {
         observers: []
       };
     }
+  }
+
+  hasKey(key: AppStateKey): boolean {
+    return this.appKeys.find((k) => k === key) ? true : false;
   }
 }

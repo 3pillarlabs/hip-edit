@@ -130,8 +130,8 @@ export default class AuthRouter {
     let topic = this.toTopic(sessionId);
     this.topicService.createTopic(topic)
       .then(() => {
-        const path = this.appHost ? `${this.appHost}/(editors:session/${sessionId})` :
-                                    `/(editors:session/${sessionId})`;
+        let path: string = this.appHost ? `${this.appHost}/` : '/';
+        path += `?sessionToken=${sessionId}&bearerToken=${sessionId}`;
         res.location(path).status(302).json({}).end();
         logger.debug(`set sessionToken to ${sessionId}`);
       })
@@ -170,7 +170,7 @@ export default class AuthRouter {
         this.topicService
           .trySubscribeTopic(topic, connectHeaders)
           .then(() => {
-            res.status(200).json({}).end();
+            res.status(200).json({bearerToken: sessionId}).end();
           })
           .catch((error) => {
             logger.error(error);
