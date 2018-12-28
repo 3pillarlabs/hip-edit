@@ -3,6 +3,9 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CodeSession } from './data-model';
+import { JoinSessionService } from './join-session.service';
+import { AppStateService } from '../app-state.service';
+import { AppStateKey } from '../app-state-key';
 
 @Component({
   selector: 'app-join-session',
@@ -11,10 +14,13 @@ import { CodeSession } from './data-model';
 })
 export class JoinSessionComponent implements OnInit {
   joinSessionForm: FormGroup;
+  invalidSessionToken: boolean = false;
 
   constructor(private router: Router,
               private fb: FormBuilder,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private joinSessionService: JoinSessionService,
+              private appStateService: AppStateService) {
   }
 
   ngOnInit() {
@@ -23,11 +29,17 @@ export class JoinSessionComponent implements OnInit {
         let sessionToken = params.get('sessionToken');
         this.createForm(sessionToken);
         console.debug(`sessionToken: ${sessionToken}`);
-      },
-      error: (error) => {
-        console.error(error);
       }
     });
+
+    this.route.queryParamMap.subscribe({
+      next: (params: ParamMap) => {
+        if (params.has('bearerToken') && params.has('sessionToken')) {
+          this.appStateService.setValue(AppStateKey.BearerToken, params.get('bearerToken'));
+          this.router.navigate([{ outlets: { editors: ['session', params.get('sessionToken')] } }]);
+        }
+      }
+    })
   }
 
   createForm(sessionToken?: string) {
@@ -42,6 +54,7 @@ export class JoinSessionComponent implements OnInit {
   }
 
   onSubmit() {
+    this.invalidSessionToken = false;
     console.debug(`this.joinSessionForm.valid: ${this.joinSessionForm.valid}`);
     if (this.joinSessionForm.invalid) {
       console.debug(this.joinSessionForm.errors);
@@ -52,6 +65,25 @@ export class JoinSessionComponent implements OnInit {
     const sessionToken = formModel.sessionToken;
     const userAlias = formModel.userAlias;
     console.debug(`sessionToken: ${sessionToken}, userAlias: ${userAlias}`);
-    return this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+    this.joinSessionForm.disable();
+    this.joinSessionService.join(sessionToken, userAlias).subscribe({
+      next: (cs) => {
+        this.appStateService.setValue(AppStateKey.BearerToken, cs.bearerToken);
+        console.debug('herw 1');
+        this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+        console.debug('herw 2');
+      },
+      error: (error) => {
+        console.error(error);
+        this.invalidSessionToken = true;
+        this.joinSessionForm.enable();
+      }
+    });
+  }
+
+  onChangeSessionToken(value: string) {
+    if (value.trim().length == 0) {
+      this.invalidSessionToken = false;
+    }
   }
 }

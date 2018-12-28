@@ -2,12 +2,13 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CodeEditorComponent } from './code-editor.component';
 import { MaterialModule } from '../material.module';
 import { EditorEventService } from './editor-event.service';
 import { PubsubService } from '../pubsub.service';
+import { AppStateService } from '../app-state.service';
 
 describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;
@@ -42,11 +43,31 @@ describe('CodeEditorComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: {
-              subscribe: (observer) => {
+              subscribe: (observer: { next: (arg0: { get: () => string; }) => void; }) => {
                 let params = {
                   get: () => {
                     return 'c1125750-2b28-431c-b378-f49f1dc5719e';
                   }
+                }
+                observer.next(params);
+              }
+            }
+          },
+        },
+        {
+          provide: AppStateService,
+          useValue: {
+            hasKey: spyOn(AppStateService.prototype, 'hasKey').and.returnValue(true),
+            setValue: spyOn(AppStateService.prototype, 'setValue').and.stub()
+          }
+        },
+        {
+          provide: Router,
+          useValue: {
+            paramMap: {
+              subscribe: (observer: { next: (arg0: { get: () => string; }) => void; }) => {
+                let params = {
+                  get: () => 'c1125750-2b28-431c-b378-f49f1dc5719e'
                 }
                 observer.next(params);
               }

@@ -4,7 +4,7 @@
   "description": "Hip Edit APIs running on a \"server\".",
   "main": "src/app.js",
   "scripts": {
-    "server": "node src/run.js",
+    "server": "node --inspect src/run.js",
     "dev:start": "nodemon --exec npm run transpile",
     "prod": "node dist/server.js",
     "rimraf": "rimraf dist",
@@ -13,24 +13,28 @@
     "mkdirp-lambda": "mkdirp dist-lambda",
     "clean": "run-s rimraf mkdirp",
     "clean-lambda": "run-s rimraf-lambda",
-    "install": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist src/",
-    "install-lambda": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist-lambda src/",
-    "install-lambda-deps": "cp -rf node_modules dist-lambda/.",
-    "build": "run-s flow clean install",
-    "build-lambda": "run-s flow mkdirp-lambda install-lambda install-lambda-deps",
+    "compile": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist src/",
+    "compile-lambda": "babel --ignore '**/*[sS]pec.js' --source-maps inline --out-dir dist-lambda src/",
+    "install-lambda-deps:copy": "copyfiles package.json package-lock.json dist-lambda/",
+    "install-lambda-deps:install": "npm ci --production --prefix dist-lambda",
+    "build": "run-s flow clean compile",
+    "build-lambda": "run-s flow mkdirp-lambda compile-lambda install-lambda-deps:copy install-lambda-deps:install",
     "start": "run-s build prod",
     "test": "npm run transpile:spec",
+    "debug:spec": "npm run transpile:spec:debug",
     "flow": "flow",
     "transpile": "run-s flow server",
     "transpile:spec": "run-s flow jasmine",
+    "transpile:spec:debug": "run-s flow jasmine:debug",
     "flow:stop": "flow stop",
     "jasmine": "node spec/unit/run.js",
+    "jasmine:debug": "node --inspect-brk spec/unit/run.js",
     "integration:spec:sam:start": "run-s build-lambda sam-local-api",
     "integration:spec": "run-s build integration:jasmine",
     "integration:spec:sam": "run-s integration:jasmine:sam",
     "integration:jasmine": "node spec/integration/run.js",
-    "integration:jasmine:sam": "npm_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) node spec/integration/run-sam.js",
-    "sam-local-api": "npm_config_messaging_host=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $(docker ps | grep activemq | cut -f1 -d' ')) sam --debug local start-api --skip-pull-image -p 9000"
+    "integration:jasmine:sam": "node spec/integration/run-sam.js",
+    "sam-local-api": "sam --debug local start-api --skip-pull-image -p 9000 --docker-network rarity --env-vars sam-env.json"
   },
   "author": "Sayantam Dey <sayantam@gmail.com>",
   "license": "ISC",
@@ -57,6 +61,24 @@
       "user": "e2e_producer",
       "password": "password",
       "editor_topic_domain": "HipEdit.Editor"
+    },
+    "auth": {
+      "local": {
+        "enabled": false
+      },
+      "google": {
+        "enabled": true,
+        "client": {
+          "id": "clientID",
+          "secret": "clientSecret"
+        },
+        "callback": {
+          "url": "callbackURL"
+        },
+        "app": {
+          "host": "appHost"
+        }
+      }
     }
   },
   "devDependencies": {
@@ -65,18 +87,19 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "babel-register": "^6.26.0",
+    "copyfiles": "^2.1.0",
     "eslint": "^4.18.2",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jasmine": "^2.9.3",
     "flow-bin": "^0.68.0",
+    "jasmine": "^3.1.0",
+    "nodemon": "^1.17.1",
     "npm-run-all": "^4.1.2",
     "rimraf": "^2.6.2",
     "source-map-support": "^0.5.5",
-    "nodemon": "^1.17.1",
-    "jasmine": "^3.1.0",
-    "supertest": "^3.0.0"
+    "supertest": "^3.3.0"
   },
   "dependencies": {
     "aws-serverless-express": "^3.2.0",
@@ -85,7 +108,11 @@
     "express": "^4.16.2",
     "lodash": "^4.17.5",
     "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-google-oauth": "^1.0.0",
+    "passport-local": "^1.0.0",
     "stompit": "^0.25.0",
+    "uuid": "^3.3.2",
     "winston": "^2.4.1"
   }
 }

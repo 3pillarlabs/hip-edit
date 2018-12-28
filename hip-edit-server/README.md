@@ -45,10 +45,11 @@ Run integration tests:
 Install Docker before the next steps.
 
 ```bash
+cd hip-edit-infra/
+docker network create rarity
 docker run -it --rm --name='activemq' -p'61613:61613' -p'61614:61614' \
--v "$PWD/artifacts/activemq:/opt/activemq/conf" -d webcenter/activemq
+-v "$PWD/artifacts/activemq:/opt/activemq/conf" --network rarity -d webcenter/activemq
 npm run integration:spec
-docker stop activemq
 ```
 
 AWS SAM, install from https://github.com/awslabs/aws-sam-cli
@@ -106,7 +107,7 @@ npm_config_messaging_user=system npm_config_messaging_password=manager npm start
 
 ## Authorization
 
-Hip Edit will create topics for broadcasting editor events. Topics can be created by both publishers and consumers (or guests). A future version will only limit to publishers. For now, limit the topic creation to a specific domain.
+Hip Edit will create topics for broadcasting editor events. Topics can be created by publishers and read by consumers (or guests).
 
 ```xml
 <!-- sample ActiveMQ (activemq.xml) configuration snippet shows authorization -->
@@ -117,8 +118,8 @@ Hip Edit will create topics for broadcasting editor events. Topics can be create
         <authorizationMap>
           <authorizationEntries>
             <authorizationEntry topic=">" read="admins" write="admins" admin="admins"/>
-            <authorizationEntry topic="ActiveMQ.Advisory.>" read="publishers,guests" write="publishers,guests" admin="publishers,guests" />
-            <authorizationEntry topic="HipEdit.Editor.>" read="guests,publishers" write="guests,publishers" admin="guests,publishers" />
+            <authorizationEntry topic="ActiveMQ.Advisory.>" read="publishers,guests" write="publishers,guests"   admin="publishers,guests" />
+            <authorizationEntry topic="HipEdit.Editor.>" read="guests,publishers" write="publishers"          admin="publishers" />
           </authorizationEntries>
         </authorizationMap>
       </map>

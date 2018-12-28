@@ -1,19 +1,21 @@
 import { browser, by, element, ProtractorBrowser, protractor } from 'protractor';
-import { By, promise } from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
+import LoginPage from './login.po';
 
 export class AppPage {
   private codeArea: By  = by.id('hippy-1');
   private fullNameField: By = by.xpath('//input[@name="userAlias"]');
   private sessionTokenField: By = by.xpath('//input[@name="sessionToken"]');
   private joinButton: By = by.xpath('//button[@name="joinSession"]');
+  private newSessionButton: By = by.id('create-new-sesion');
   private browser : ProtractorBrowser = null;
 
   constructor(newBrowser : ProtractorBrowser = null) {
     this.browser = newBrowser || browser;
   }
 
-  async navigateTo() {
-    return await this.browser.get('/');
+  async navigateTo(path: string = '/') {
+    return await this.browser.get(path);
   }
 
   async getTitle() {
@@ -29,8 +31,8 @@ export class AppPage {
   }
 
   async getCode() {
-    const hippy = this.browser.element(this.codeArea);
-    return await hippy.getAttribute('value');
+    const hippy = this.browser.element(this.codeArea).getWebElement();
+    return await hippy.getAttribute('value').catch<string>(() => undefined);
   }
 
   cloneNew() : AppPage {
@@ -50,8 +52,10 @@ export class AppPage {
     return this.browser.forkNewDriverInstance();
   }
 
-  async joinSession(fullName: string, sessionToken: string) {
-    this.browser.element(this.sessionTokenField).sendKeys(sessionToken);
+  async joinSession(fullName: string, sessionToken: string | void) {
+    if (sessionToken) {
+      this.browser.element(this.sessionTokenField).sendKeys(sessionToken);
+    }
     this.browser.element(this.fullNameField).sendKeys(fullName);
     await this.browser.element(this.joinButton).click();
     try {
@@ -63,5 +67,19 @@ export class AppPage {
 
   async closeBrowserWindow() {
     await this.browser.close();
+  }
+
+  async createNewSession() {
+    try {
+      this.browser.waitForAngularEnabled(false);
+      await this.browser.element(this.newSessionButton).click();
+      try {
+        return LoginPage.getModel(this.browser);
+      } catch (error) {
+        return undefined;
+      }
+    } finally {
+      this.browser.waitForAngularEnabled(true);
+    }
   }
 }

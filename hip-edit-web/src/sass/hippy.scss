@@ -50,5 +50,32 @@ form {
       top: 3vh * $offset;
       position: relative;
     }
+
+    .fixed-height-#{$offset} {
+      height: 1rem * $offset;
+    }
   }
+}
+
+.panel {
+  margin: 1rem 0;
+}
+
+.mat-card-message {
+  padding: 1rem !important;
+  .mat-card-header {
+    .mat-card-avatar {
+      width: 24px;
+      height: 24px;
+    }
+    .mat-card-header-text {
+      .mat-card-title {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.mat-card-error {
+  background-color: $red;
 }

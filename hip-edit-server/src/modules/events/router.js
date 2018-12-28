@@ -3,6 +3,7 @@
 import express from 'express';
 import logger from '../logging';
 import EditorEventService from './service';
+import {toObject} from '../app-error';
 
 /**
 * Router for processing CodeEvent
@@ -18,26 +19,26 @@ export default class CodeEventsRouter {
   }
 
   /**
-  * @return {Object} router
+  * @return {express.Router} router
   */
-  router() {
+  router(): express.Router {
     const router = express.Router();
 
-    router.post('/', (req, resp) => {
+    router.post('/', (req: express.Request, resp: express.Response) => {
       logger.debug(req.body);
       this.editorEventService.queue(req.body)
         .then(() => {
-          resp.status('201').json({});
+          resp.status(201).json({});
         })
-        .catch((e) => {
-          resp.status('400');
+        .catch((e: Error) => {
+          resp.status(400).json(toObject(e));
         })
         .then(() => {
           resp.end();
         });
     });
 
-    router.get('/', (req, resp) => {
+    router.get('/', (req: express.Request, resp: express.Response) => {
       resp.end('[]');
     });
 

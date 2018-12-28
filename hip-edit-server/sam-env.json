@@ -1,0 +1,9 @@
+{
+  "HipEditServerApiFunction": {
+    "npm_config_auth_local_enabled": true,
+    "npm_config_auth_google_client_id": "client_id",
+    "npm_config_auth_google_client_secret": "client_secret",
+    "npm_config_auth_google_callback_url": "http://localhost:9000/auth/google/callback",
+    "npm_config_auth_app_host": "http://localhost:4200"
+  }
+}

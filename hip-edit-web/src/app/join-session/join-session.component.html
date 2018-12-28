@@ -1,24 +1,35 @@
 <div class="row">
   <div class="col-xs-offset-4 col-xs-4">
-    <form [formGroup]="joinSessionForm" (ngSubmit)="onSubmit()">
-      <fieldset class="vh-offset-4">
-        <div class="stretch-children">
-          <mat-form-field color="accent" hintLabel="Max 36 characters, no dots">
-            <input formControlName="sessionToken" matInput placeholder="Session Identifier" name="sessionToken"
-              autocomplete="off" required />
-          </mat-form-field>
-          <mat-form-field color="accent">
-            <input formControlName="userAlias" matInput placeholder="Your Name" name="userAlias"
-              autocomplete="username" required />
-          </mat-form-field>
+    <div class="panel">
+      <form [formGroup]="joinSessionForm" (ngSubmit)="onSubmit()">
+        <fieldset>
+          <div class="stretch-children">
+            <mat-form-field color="accent" hintLabel="Max 36 characters, no dots">
+              <input formControlName="sessionToken" matInput placeholder="Session Identifier" name="sessionToken"
+                autocomplete="off" required #sessionToken (keyup)="onChangeSessionToken(sessionToken.value)"/>
+            </mat-form-field>
+            <mat-form-field color="accent">
+              <input formControlName="userAlias" matInput placeholder="Your Name" name="userAlias"
+                autocomplete="username" required />
+            </mat-form-field>
+          </div>
+          <div class="action-bar">
+            <button mat-flat-button color="primary" type="submit" name="joinSession"
+              [disabled]="joinSessionForm.pristine || joinSessionForm.invalid || joinSessionForm.disabled">
+              Join
+            </button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <mat-card *ngIf="invalidSessionToken" class="mat-card-message mat-card-error">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <i class="material-icons">error</i>
         </div>
-        <div class="action-bar">
-          <button mat-flat-button color="primary" type="submit" name="joinSession"
-            [disabled]="joinSessionForm.pristine || joinSessionForm.invalid">
-            Join
-          </button>
-        </div>
-      </fieldset>
-    </form>
+        <mat-card-title>Invalid Session Identifier</mat-card-title>
+      </mat-card-header>
+    </mat-card>
+    <mat-progress-bar color="primary" mode="indeterminate" *ngIf="joinSessionForm.disabled"></mat-progress-bar>
   </div>
 </div>
