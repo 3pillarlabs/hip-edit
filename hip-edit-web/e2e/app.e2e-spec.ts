@@ -1,12 +1,19 @@
 import { randomBytes } from 'crypto';
 import { AppPage } from './app.po';
+import { ApiClient } from './api-client';
 
 describe('hip-edit-web user', () => {
   const sessionTokenFn = () => {
     return randomBytes(16).toString('hex');
   }
 
+  const apiClient = new ApiClient({host: 'localhost', port: 9000});
   let page: AppPage;
+  let sessionToken: string | void;
+
+  beforeAll(async () => {
+    sessionToken = await apiClient.createTopic().catch((error) => fail(error));
+  });
 
   beforeEach(() => {
     page = new AppPage();
@@ -19,11 +26,10 @@ describe('hip-edit-web user', () => {
 
   it('should be able to join an existing session', () => {
     page.navigateTo();
-    expect(page.joinSession('John Doe', sessionTokenFn())).toBeTruthy();
+    expect(page.joinSession('John Doe', sessionToken)).toBeTruthy();
   });
 
   it('should see the state of the editor when they join', () => {
-    let sessionToken = sessionTokenFn();
     page.navigateTo();
     page.joinSession('John Doe', sessionToken);
     let input =
@@ -40,7 +46,6 @@ describe('hip-edit-web user', () => {
   });
 
   it('should have editor changes broadcast to connected sessions', () => {
-    let sessionToken = sessionTokenFn();
     let inputCode = `class Foo
       end`;
     let newPage = page.cloneNew().switch();
@@ -54,7 +59,7 @@ describe('hip-edit-web user', () => {
     newPage.closeBrowserWindow();
   });
 
-  it('should be able to create new session', async (done) => {
+  it('should be able to create new session', async (done: () => void) => {
     page.navigateTo();
     let loginPage = await page.createNewSession();
     expect(loginPage).toBeTruthy();

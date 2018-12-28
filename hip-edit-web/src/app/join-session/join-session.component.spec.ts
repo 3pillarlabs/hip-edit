@@ -7,6 +7,8 @@ import { ActivatedRoute } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import { JoinSessionComponent } from './join-session.component';
 import { CodeSession } from './data-model';
+import { JoinSessionService } from './join-session.service';
+import { AppStateService } from '../app-state.service';
 
 describe('JoinSessionComponent', () => {
   let component: JoinSessionComponent;
@@ -38,13 +40,34 @@ describe('JoinSessionComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: {
-              subscribe: (observer) => {
+              subscribe: (observer: { next: (arg0: { get: () => string; }) => void; }) => {
                 let params = {
                   get: () => sessionToken
                 }
                 observer.next(params);
               }
+            },
+            queryParamMap: {
+              subscribe: (_observer: any) => { }
             }
+          }
+        },
+        {
+          provide: JoinSessionService,
+          useValue: {
+            join: () => {
+              return {
+                subscribe: (observer: { next: (arg0: {}) => void; }) => {
+                  observer.next({});
+                }
+              }
+            }
+          }
+        },
+        {
+          provide: AppStateService,
+          useValue: {
+            setValue: spyOn(AppStateService.prototype, 'setValue').and.stub()
           }
         }
       ]

@@ -69,7 +69,9 @@ export class JoinSessionComponent implements OnInit {
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
       next: (cs) => {
         this.appStateService.setValue(AppStateKey.BearerToken, cs.bearerToken);
+        console.debug('herw 1');
         this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+        console.debug('herw 2');
       },
       error: (error) => {
         console.error(error);

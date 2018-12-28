@@ -52,8 +52,10 @@ export class AppPage {
     return this.browser.forkNewDriverInstance();
   }
 
-  async joinSession(fullName: string, sessionToken: string) {
-    this.browser.element(this.sessionTokenField).sendKeys(sessionToken);
+  async joinSession(fullName: string, sessionToken: string | void) {
+    if (sessionToken) {
+      this.browser.element(this.sessionTokenField).sendKeys(sessionToken);
+    }
     this.browser.element(this.fullNameField).sendKeys(fullName);
     await this.browser.element(this.joinButton).click();
     try {
