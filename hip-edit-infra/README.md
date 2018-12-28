@@ -29,6 +29,16 @@ From zero to continuous deployment with AWS Code Pipeline -
     * ``npm_config_auth_google_callback_url``: ``https://API_GATEWAY_ID.execute-api.us-east-1.amazonaws.com/ga/auth/google/callback``
 0. Create a Code Pipeline, create a Source from GitHub and attach to the Code Build.
 
+# ActiveMQ EC2 Instance
+The two resources that are billed even when the application is not in use are the EC2 instance and the Elastic IP (EIP) once the EC2 instance is shut down or terminated. In order to stop the instance and release the EIP -
+```bash
+python services.py halt --name EngTools -s 3pillar-eng -u $CF_ROLE_ARN \
+--vpc-id $SERVICES_VPC_ID --subnet-id $SERVICES_SUBNET_ID $KEY_PAIR_NAME \
+--amq-users publishers:$PUBLISHER_USER guests:$CONSUMER_USER
+```
+
+To bring back up all services, just execute the Code Build from the AWS CLI or Console.
+
 ## Examples
 
 ### API Gateway IAM Role
