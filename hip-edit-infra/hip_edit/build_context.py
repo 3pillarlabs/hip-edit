@@ -14,7 +14,8 @@ class BuildContext(object):
         self._build_data = None
         self._lambda_vars = [
             'npm_config_messaging_host',
-            'npm_config_messaging_password'
+            'npm_config_messaging_password',
+            'npm_config_auth_agent_passcode'
         ]
 
 
