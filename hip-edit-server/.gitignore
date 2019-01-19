@@ -4,3 +4,4 @@ dist/
 node_modules/
 *-packaged.yml
 *-staged.yml
+coverage/

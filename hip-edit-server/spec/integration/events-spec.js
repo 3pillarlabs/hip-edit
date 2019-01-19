@@ -1,6 +1,6 @@
 import process from 'process';
 import agent from 'superagent';
-import AppConfig from '../../dist/modules/app-config';
+import {AppConfig} from '../../dist/modules/app-config';
 
 describe('Events API Integration Tests', () => {
   const baseUrl = process.env.BASE_URL || `http://localhost:${AppConfig.serverPort}`;
@@ -8,7 +8,7 @@ describe('Events API Integration Tests', () => {
   describe('POST /events', () => {
     it('should post the event to the topic', (done) => {
       agent
-        .post(`${baseUrl}/events`)
+        .post(`${baseUrl}/api/events`)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/hal+json,application/json')
         .send({

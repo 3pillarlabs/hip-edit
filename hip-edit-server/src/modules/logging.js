@@ -1,4 +1,4 @@
-import AppConfig from './app-config';
+import {AppConfig} from './app-config';
 import {Logger, transports} from 'winston';
 
 const logger = new Logger({
@@ -11,4 +11,5 @@ const logger = new Logger({
 });
 
 logger.cli();
-export default logger;
+
+export {logger};

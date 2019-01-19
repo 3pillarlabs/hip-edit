@@ -1,14 +1,14 @@
 // @flow
 // Events Controller
 import express from 'express';
-import logger from '../logging';
-import EditorEventService from './service';
+import {logger} from '../logging';
+import {EditorEventService} from './service';
 import {toObject} from '../app-error';
 
 /**
 * Router for processing CodeEvent
 */
-export default class CodeEventsRouter {
+export class CodeEventsRouter {
   editorEventService: EditorEventService;
 
   /**

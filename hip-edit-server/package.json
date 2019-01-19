@@ -21,20 +21,20 @@
     "build-lambda": "run-s flow mkdirp-lambda compile-lambda install-lambda-deps:copy install-lambda-deps:install",
     "start": "run-s build prod",
     "test": "npm run transpile:spec",
-    "debug:spec": "npm run transpile:spec:debug",
     "flow": "flow",
     "transpile": "run-s flow server",
     "transpile:spec": "run-s flow jasmine",
-    "transpile:spec:debug": "run-s flow jasmine:debug",
     "flow:stop": "flow stop",
     "jasmine": "node spec/unit/run.js",
     "jasmine:debug": "node --inspect-brk spec/unit/run.js",
     "integration:spec:sam:start": "run-s build-lambda sam-local-api",
-    "integration:spec": "run-s build integration:jasmine",
+    "integration:spec": "npm_config_auth_local_enabled=true run-s build integration:jasmine",
     "integration:spec:sam": "run-s integration:jasmine:sam",
     "integration:jasmine": "node spec/integration/run.js",
     "integration:jasmine:sam": "node spec/integration/run-sam.js",
-    "sam-local-api": "sam --debug local start-api --skip-pull-image -p 9000 --docker-network rarity --env-vars sam-env.json"
+    "sam-local-api": "sam --debug local start-api --skip-pull-image -p 9000 --docker-network rarity --env-vars sam-env.json",
+    "cover": "run-s flow nyc-cover",
+    "nyc-cover": "NODE_ENV=test nyc jasmine"
   },
   "author": "Sayantam Dey <sayantam@gmail.com>",
   "license": "ISC",
@@ -46,6 +46,17 @@
     "url": "https://github.com/3pillarlabs/hip-edit/issues"
   },
   "homepage": "https://github.com/3pillarlabs/hip-edit#readme",
+  "nyc": {
+    "require": [
+      "@babel/register"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "sourceMap": false,
+    "instrument": false
+  },
   "config": {
     "server": {
       "port": 9000
@@ -82,8 +93,11 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/register": "^7.0.0",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.2",
+    "babel-plugin-istanbul": "^5.1.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "babel-register": "^6.26.0",
@@ -93,10 +107,12 @@
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jasmine": "^2.9.3",
-    "flow-bin": "^0.68.0",
+    "flow-bin": "^0.89.0",
     "jasmine": "^3.1.0",
+    "jasmine-console-reporter": "^3.1.0",
     "nodemon": "^1.17.1",
     "npm-run-all": "^4.1.2",
+    "nyc": "^13.1.0",
     "rimraf": "^2.6.2",
     "source-map-support": "^0.5.5",
     "supertest": "^3.3.0"
@@ -106,6 +122,7 @@
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.2",
+    "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.5",
     "morgan": "^1.9.0",
     "passport": "^0.4.0",

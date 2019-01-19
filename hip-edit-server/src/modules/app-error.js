@@ -3,10 +3,10 @@
 /**
  * Wraps any error into an Error or returns itself.
  *
- * @param {Error | any} error
+ * @param {any} error
  * @return {Error}
  */
-export function toError(error: Error | any): Error {
+export function toError(error: any): Error {
   return error instanceof Error ? error : new Error(error);
 }
 

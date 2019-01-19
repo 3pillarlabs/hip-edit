@@ -24,8 +24,10 @@ def check_instance_status(instance_id,
     Waits for instance and system checks to complete.
     """
     instance = ec2.Instance(instance_id)
+    was_stopped = False
     if instance.state['Name'] == 'stopped':
         LOGGER.info('ActiveMQ instance is stopped, starting...')
+        was_stopped = True
         instance.start()
         instance.wait_until_running(
             Filters=[
@@ -51,7 +53,7 @@ def check_instance_status(instance_id,
             LOGGER.debug(model)
 
     LOGGER.info('ActiveMQ instance up and running')
-    return True
+    return was_stopped
 
 
 def configure(cli_options, hostname, templates_path, distribution_type, ssh_client=None):

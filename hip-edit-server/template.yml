@@ -29,19 +29,50 @@ Resources:
           npm_config_auth_google_callback_url: callback_url
           npm_config_auth_agent_login: e2e_consumer
           npm_config_auth_agent_passcode: password
+          npm_config_auth_jwt_secret_key: jwt_secret
+          npm_config_auth_jwt_issuer: http://auth.3pillarglobal.com
       Events:
+        AuthRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HipEditAPI
+            Path: /auth
+            Method: ANY
+        Auth:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HipEditAPI
+            Path: /auth/{proxy+}
+            Method: ANY
         ApiRoot:
           Type: Api
           Properties:
             RestApiId: !Ref HipEditAPI
-            Path: /
+            Path: /api
             Method: ANY
+            Auth:
+              Authorizer: HipEditLambdaTokenAuth
         Api:
           Type: Api
           Properties:
             RestApiId: !Ref HipEditAPI
-            Path: /{proxy+}
+            Path: /api/{proxy+}
             Method: ANY
+            Auth:
+              Authorizer: HipEditLambdaTokenAuth
+
+
+  HipEditLambdaAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist-lambda
+      Handler: authorizer.handler
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          npm_config_logger_console_level: debug
+          npm_config_auth_jwt_secret_key: jwt_secret
+          npm_config_auth_jwt_issuer: http://auth.3pillarglobal.com
 
 
   HipEditAPI:
@@ -57,6 +88,15 @@ Resources:
         AllowOrigin: '*'
       Variables:
         ServerlessExpressLambdaFunctionName: !Ref HipEditServerApiFunction
+        LambdaAuthorizerFunctionName: !Ref HipEditLambdaAuthorizerFunction
+      Auth:
+        Authorizers:
+          HipEditLambdaTokenAuth:
+            FunctionPayloadType: TOKEN
+            FunctionArn: !GetAtt HipEditLambdaAuthorizerFunction.Arn
+            Identity:
+              Header: Authorization
+              ReauthorizeEvery: 3600
       DefinitionBody:
         swagger: 2.0
         info:
@@ -64,8 +104,18 @@ Resources:
         basePath: /ga
         schemes:
         - https
+        securityDefinitions:
+          lambda-authorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: oauth2
+            x-amazon-apigateway-authorizer:
+              type: token
+              authorizerUri: !Join [ ":", [ !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}", "function:${stageVariables.LambdaAuthorizerFunctionName}/invocations"] ]
+              authorizerResultTtlInSeconds: 3600
         paths:
-          /:
+          /auth:
             x-amazon-apigateway-any-method:
               produces:
               - application/json
@@ -112,7 +162,7 @@ Resources:
                 requestTemplates:
                   application/json: '{"statusCode": 200}'
                 type: mock
-          /{proxy+}:
+          /auth/{proxy+}:
             x-amazon-apigateway-any-method:
               produces:
               - application/json
@@ -155,8 +205,102 @@ Resources:
                 requestTemplates:
                   application/json: '{"statusCode": 200}'
                 type: mock
+          /api:
+            x-amazon-apigateway-any-method:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: '#/definitions/Empty'
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: 200
+                uri: !Join [ ":", [ !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}", "function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations"] ]
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+              security:
+              - lambda-authorizer: []
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: '#/definitions/Empty'
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                contentHandling: CONVERT_TO_TEXT
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                type: mock
+          /api/{proxy+}:
+            x-amazon-apigateway-any-method:
+              produces:
+              - application/json
+              parameters:
+              - name: proxy
+                in: path
+                required: true
+                type: string
+              x-amazon-apigateway-integration:
+                uri: !Join [ ":", [ !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}", "function:${stageVariables.ServerlessExpressLambdaFunctionName}/invocations"] ]
+                httpMethod: POST
+                type: aws_proxy
+              security:
+              - lambda-authorizer: []
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: '#/definitions/Empty'
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                contentHandling: CONVERT_TO_TEXT
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                type: mock
         x-amazon-apigateway-binary-media-types:
-          - '*/*'
+        - '*/*'
         definitions:
           Empty:
             type: object

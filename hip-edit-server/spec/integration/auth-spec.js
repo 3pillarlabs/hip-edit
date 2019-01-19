@@ -1,7 +1,7 @@
 import process from 'process';
 import agent from 'superagent';
-import AppConfig from '../../dist/modules/app-config';
-import logger from '../../dist/modules/logging';
+import {AppConfig} from '../../dist/modules/app-config';
+import {logger} from '../../dist/modules/logging';
 
 describe('Authentication Tests', () => {
   const baseUrl = process.env.BASE_URL || `http://localhost:${AppConfig.serverPort}`;

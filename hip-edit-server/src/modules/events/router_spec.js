@@ -1,10 +1,10 @@
 import express from 'express';
 import {json} from 'body-parser';
 import agent from 'supertest';
-import CodeEventsRouter from './router';
-import EditorEventService from './service';
+import {CodeEventsRouter} from './router';
+import {EditorEventService} from './service';
 
-describe(CodeEventsRouter, () => {
+describe(CodeEventsRouter.name, () => {
   let app = null;
   let editorEventService = null;
 

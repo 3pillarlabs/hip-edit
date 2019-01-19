@@ -3,18 +3,15 @@
 // eslint-disable-next-line no-unused-vars
 import passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
-import logger from '../logging';
+import {logger} from '../logging';
+import type {LocalAuthConfig} from './domain';
 
 /**
  * @param {passport} passport Passport module
  * @param {Object} config
  * @return {boolean} true if local strategy was applied
  */
-export default function _localAuthStrategy(passport: passport,
-                                           config: {
-                                             enabled: boolean,
-                                             db: {username: string, password: string}[],
-                                          }): boolean {
+export function localAuthStrategy(passport: passport, config: LocalAuthConfig): boolean {
   if (!config.enabled) {
     logger.debug('skipping local auth');
     return false;
