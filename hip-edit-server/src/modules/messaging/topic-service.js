@@ -2,11 +2,12 @@
 
 import _ from 'lodash';
 import {Client} from 'stompit';
-import logger from '../logging';
-import TopicServiceConfig from './topic-service-config';
+import {logger} from '../logging';
+import {TopicServiceConfig} from './domain';
+import type {Credential} from './domain';
 import {toError} from '../app-error';
 
-type MessageOptions = {
+export type MessageOptions = ?{
   expires?: number,
   persistent?: boolean
 }
@@ -14,7 +15,7 @@ type MessageOptions = {
 /**
  * Adapter to a STOMP aware endpoint for sending and receiving messages to/from a TOPIC.
  */
-export default class TopicService {
+export class TopicService {
   stompClient: Client;
   config: TopicServiceConfig;
   topicPrefixRegex: RegExp;
@@ -34,10 +35,10 @@ export default class TopicService {
    * Post data to topic.
    * @param {string} topic
    * @param {string} doc
-   * @param {MessageOptions | void} messageOptions
+   * @param {MessageOptions} messageOptions
    * @return {Promise}
    */
-  postToTopic(topic: string, doc: string, messageOptions: MessageOptions | void): Promise<void> {
+  postToTopic(topic: string, doc: string, messageOptions: MessageOptions): Promise<void> {
     const prefixedTopic = this.prefixTopic(topic);
     return new Promise((resolve, reject) => {
       this.stompClient.connect(this.config, this.delegate(prefixedTopic, doc, messageOptions, resolve, reject));
@@ -48,12 +49,12 @@ export default class TopicService {
    * Connect callback generator
    * @param {string} topic
    * @param {string} doc
-   * @param {MessageOptions | void} messageOptions
+   * @param {MessageOptions} messageOptions
    * @param {Function} resolve
    * @param {Function} reject
   * @return {Function}
    */
-   delegate(topic: string, doc: string, messageOptions: MessageOptions | void,
+   delegate(topic: string, doc: string, messageOptions: MessageOptions,
             resolve: Function, reject: Function): Function {
      return (error: Error | any, client: Client) => {
        if (error) {
@@ -102,9 +103,7 @@ export default class TopicService {
    * @param {Object} connectHeaders
    * @return {Promise}
    */
-  trySubscribeTopic(topic: string,
-                    connectHeaders: {login: string,
-                                     passcode: string} | void = undefined): Promise<void> {
+  trySubscribeTopic(topic: string, connectHeaders: ?Credential = undefined): Promise<void> {
     const prefixedTopic = this.prefixTopic(topic);
     const connectConfig = _.assign({}, this.config, {connectHeaders});
     return new Promise((resolve, reject) => {

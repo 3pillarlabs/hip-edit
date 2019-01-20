@@ -1,6 +1,8 @@
 // @flow
 
-import {TopicServiceConfigProperties} from './messaging/topic-service-config';
+import type {TopicServiceConfigProperties, Credential} from './messaging/domain';
+import {InsecureKey} from './insecure-key';
+import type {LocalAuthConfig, GoogleAuthConfig, JwtConfig} from './auth/domain';
 
 /**
  * Looks up config and package (in order) for a configuration parameter.
@@ -25,19 +27,11 @@ const AppConfig: {
   editorTopicDomain?: ?string,
   messaging: TopicServiceConfigProperties,
   auth?: {
-    local?: {enabled: boolean, db: {username: string, password: string}[]},
-    google?: {
-      enabled: boolean,
-      clientID: string,
-      clientSecret: string,
-      callbackURL: string,
-      prompt: string,
-    },
-    agent?: {
-      login: string,
-      passcode: string
-    },
+    local?: LocalAuthConfig,
+    google?: GoogleAuthConfig,
+    agent?: Credential,
     appHost?: string,
+    jwt?: JwtConfig
   }
 } = {
   logLevel: String(configValue('logger_console_level', 'debug')),
@@ -72,14 +66,19 @@ const AppConfig: {
       passcode: String(configValue('auth_agent_passcode', 'password')),
     },
     appHost: String(configValue('auth_app_host')),
+    jwt: {
+      secretKey: String(configValue('auth_jwt_secret_key', InsecureKey)),
+      expiresIn: Number(configValue('auth_jwt_expires_in', 3600)),
+      issuer: String(configValue('auth_jwt_issuer', 'http://example.org')),
+    },
   },
 };
 
 if (configValue('messaging_user')) {
   AppConfig.messaging.auth = {
-    user: String(configValue('messaging_user')),
-    password: String(configValue('messaging_password')),
+    login: String(configValue('messaging_user')),
+    passcode: String(configValue('messaging_password')),
   };
 }
 
-export default AppConfig;
+export {AppConfig};

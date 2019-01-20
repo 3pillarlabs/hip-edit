@@ -1,7 +1,7 @@
-import EditorEventService from './service';
-import TopicService from '../messaging/topic-service';
+import {EditorEventService} from './service';
+import {TopicService} from '../messaging/topic-service';
 
-describe(EditorEventService, () => {
+describe(EditorEventService.name, () => {
   let topicService = jasmine.createSpyObj(TopicService, ['postToTopic']);
   let editorEventService = new EditorEventService(topicService);
 

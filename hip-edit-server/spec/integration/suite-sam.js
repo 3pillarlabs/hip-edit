@@ -1,5 +1,3 @@
-import Jasmine from 'jasmine';
+import {newJasmineInstance} from './common';
 
-const jasmine = new Jasmine();
-jasmine.loadConfigFile('spec/support/jasmine-integration.json');
-jasmine.execute();
+newJasmineInstance().execute();

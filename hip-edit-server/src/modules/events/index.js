@@ -1,17 +1,18 @@
 // @flow
 
-import express from 'express';
-import topicServiceFactory from '../messaging/factory';
-import EditorEventService from './service';
-import CodeEventsRouter from './router';
-import AppConfig from '../app-config';
+import type express from 'express';
+import {topicServiceFactory} from '../messaging/factory';
+import {EditorEventService} from './service';
+import {CodeEventsRouter} from './router';
+import {AppConfig} from '../app-config';
 
 /**
  * Mounts the Express app with prefix
  * @param {express} app
+ * @param {string} mountPath
  */
-export default function _codeEventsRoute(app: express) {
+export function codeEventsRoute(app: express, mountPath: string) {
   const editorEventService = new EditorEventService(topicServiceFactory(AppConfig.messaging));
   const codeEventsRouter = new CodeEventsRouter(editorEventService);
-  app.use('/events', codeEventsRouter.router());
+  app.use(mountPath, codeEventsRouter.router());
 }

@@ -4,6 +4,8 @@ import { HttpClient } from "@angular/common/http";
 
 import { EditorEventService } from './editor-event.service';
 import { environment } from '../../environments/environment';
+import { AppStateService } from '../app-state.service';
+import { PartialObserver } from 'rxjs/Observer';
 
 describe('EditorEventService', () => {
   let service: EditorEventService;
@@ -12,7 +14,7 @@ describe('EditorEventService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [EditorEventService],
+      providers: [ EditorEventService, AppStateService ],
       imports: [HttpClientTestingModule]
     });
 
@@ -27,9 +29,14 @@ describe('EditorEventService', () => {
 
   describe('#postEvent', () => {
     it('should post Event data', () => {
+      const bearerToken = 'd7fdeeb8a746964b';
+      spyOn(AppStateService.prototype, 'now').and.callFake((_key: string, observer: PartialObserver<any>) => {
+        observer.next(bearerToken);
+      });
       service.postEvent('a3fp', 'foo').subscribe();
-      const req = httpTestingController.expectOne(`${environment.hipEditApiPrefix}/events`);
+      const req = httpTestingController.expectOne(`${environment.hipEditApiPrefix}/api/events`);
       expect(req.request.method).toEqual('POST');
+      expect(req.request.headers.get('Authorization')).toEqual(bearerToken);
       req.flush(null);
       httpTestingController.verify();
     });

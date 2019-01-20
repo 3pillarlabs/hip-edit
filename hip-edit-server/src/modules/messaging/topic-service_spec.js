@@ -1,8 +1,8 @@
 import {subscribeError} from 'stompit';
-import TopicService from './topic-service';
-import TopicServiceConfig from './topic-service-config';
+import {TopicService} from './topic-service';
+import {TopicServiceConfig} from './domain';
 
-describe(TopicService, () => {
+describe(TopicService.name, () => {
   let stompClient = null;
   let topicService = null;
   let config = new TopicServiceConfig();
@@ -85,6 +85,35 @@ describe(TopicService, () => {
       const spy = spyOn(TopicService.prototype, 'postToTopic').and.stub();
       topicService.createTopic('foo');
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('#trySubscribeTopic', () => {
+    it('should reject the promise if connect fails', (done) => {
+      stompClient.connect.and.callFake((_conf, cb) => cb({message: 'fake connect fail'}, null));
+      topicService.trySubscribeTopic('#topic', {login: 'login', passcode: 'password'})
+        .catch((error) => {
+          expect(error).toBeTruthy();
+          done();
+        });
+    });
+    it('should reject the promise if subscribe fails', (done) => {
+      const client = jasmine.createSpyObj('stomp.Client', ['sendFrame', 'disconnect', 'destroy']);
+      client.sendFrame.and.callFake((_command, _headers, options) => options.onError('UnAuthorized'));
+      stompClient.connect.and.callFake((_conf, cb) => cb(null, client));
+      topicService.trySubscribeTopic('#topic', {login: 'login', passcode: 'passw0rd'})
+        .catch((error) => {
+          expect(error).toBeTruthy();
+          done();
+        });
+    });
+    it('should resolve the promise if subscribe succeeds', (done) => {
+      const client = jasmine.createSpyObj('stomp.Client', ['sendFrame', 'disconnect', 'destroy']);
+      client.sendFrame.and.callFake((_command, _headers, options) => options.onReceipt());
+      stompClient.connect.and.callFake((_conf, cb) => cb(null, client));
+      topicService.trySubscribeTopic('#topic', {login: 'login', passcode: 'password'})
+        .then(done)
+        .catch((error) => fail(error));
     });
   });
 });

@@ -45,4 +45,19 @@ describe('AppStateService', () => {
     service.setValue(AppStateKey.TestKey, 'bar');
     expect(subscribedValues).toEqual(['bar', 'bar']);
   }));
+
+  it('should inform the current value', inject([AppStateService], (service: AppStateService) => {
+    service.setValue(AppStateKey.TestKey, '#val');
+    let kv = null;
+    service.now(AppStateKey.TestKey, {
+      next: (value) => kv = value
+    });
+    expect(kv).toEqual('#val');
+
+    const errors = [];
+    service.now(AppStateKey.SessionToken, {
+      error: (error) => errors.push(error)
+    });
+    expect(errors.length).toEqual(1);
+  }));
 });

@@ -2,55 +2,61 @@
 
 import express from 'express';
 import {urlencoded, json} from 'body-parser';
-import uuid from 'uuid';
 import passport from 'passport';
-import localAuthStrategy from './local-auth-strategy';
-import googleOAuth2Strategy from './google-oauth2-strategy';
-import AppConfig from '../app-config';
-import logger from '../logging';
-import TopicService from '../messaging/topic-service';
+import {localAuthStrategy} from './local-auth-strategy';
+import {googleOAuth2Strategy} from './google-oauth2-strategy';
+import {AppConfig} from '../app-config';
+import {logger} from '../logging';
+import {TopicService} from '../messaging/topic-service';
 import {toObject} from '../app-error';
+import {AuthService} from './auth-service';
+import type {LocalAuthConfig, GoogleAuthConfig, JwtConfig} from './domain';
 
 /**
  * Auth router
  */
-export default class AuthRouter {
-  topicService: TopicService;
-  localAuthConfig: Object;
-  googleAuthConfig: Object;
-  appHost: ?string;
+export class AuthRouter {
   _passportRef: passport;
+  topicService: TopicService;
+  authService: AuthService;
+
+  _localAuthConfig: LocalAuthConfig;
+  _googleAuthConfig: GoogleAuthConfig;
+  _appHost: string;
+  _jwtConfig: JwtConfig;
 
   /**
    * @param {TopicService} topicService
-   * @param {Object} localAuthConfig
-   * @param {Object} googleAuthConfig
-   * @param {string} appHost
+   * @param {AuthService} authService
    * Constructor
    */
-  constructor(topicService: TopicService,
-              localAuthConfig: ?Object,
-              googleAuthConfig: ?Object,
-              appHost: ?string) {
+  constructor(topicService: TopicService, authService: AuthService) {
+    this._passportRef = passport;
     this.topicService = topicService;
+    this.authService = authService;
 
-    if (localAuthConfig) {
-      this.localAuthConfig = localAuthConfig;
-    } else if (AppConfig.auth && AppConfig.auth.local) {
+    if (AppConfig.auth && AppConfig.auth.local) {
       this.localAuthConfig = AppConfig.auth.local;
     }
 
-    if (googleAuthConfig) {
-      this.googleAuthConfig = googleAuthConfig;
-    } else if (AppConfig.auth && AppConfig.auth.google) {
+    if (AppConfig.auth && AppConfig.auth.google) {
       this.googleAuthConfig = AppConfig.auth.google;
     }
 
-    this.appHost = appHost;
-    if (!this.appHost && AppConfig.auth) {
+    if (AppConfig.auth && AppConfig.auth.appHost) {
       this.appHost= AppConfig.auth.appHost;
     }
-    this._passportRef = passport;
+
+    if (AppConfig.auth && AppConfig.auth.jwt) {
+      this._jwtConfig = AppConfig.auth.jwt;
+    }
+  }
+
+  /**
+   * @return {passport}
+   */
+  get passportRef(): passport {
+    return this._passportRef;
   }
 
   /**
@@ -62,10 +68,59 @@ export default class AuthRouter {
   }
 
   /**
-   * @return {passport}
+   * @return {LocalAuthConfig}
    */
-  get passportRef(): passport {
-    return this._passportRef;
+  get localAuthConfig(): LocalAuthConfig {
+    return this._localAuthConfig;
+  }
+
+  /**
+   * @param {LocalAuthConfig} newLocalAuthConfig
+   */
+  set localAuthConfig(newLocalAuthConfig: LocalAuthConfig) {
+    this._localAuthConfig = newLocalAuthConfig;
+  }
+
+  /**
+   * @return {GoogleAuthConfig}
+   */
+  get googleAuthConfig(): GoogleAuthConfig {
+    return this._googleAuthConfig;
+  }
+
+  /**
+   * @param {GoogleAuthConfig} newGoogleAuthConfig
+   */
+  set googleAuthConfig(newGoogleAuthConfig: GoogleAuthConfig) {
+    this._googleAuthConfig = newGoogleAuthConfig;
+  }
+
+  /**
+   * @return {string}
+   */
+  get appHost(): string {
+    return this._appHost;
+  }
+
+  /**
+   * @param {string} newAppHost
+   */
+  set appHost(newAppHost: string) {
+    this._appHost = newAppHost;
+  }
+
+  /**
+   * @return {JwtConfig}
+   */
+  get jwtConfig(): JwtConfig {
+    return this._jwtConfig;
+  }
+
+  /**
+   * @param {JwtConfig} newJwtConfig
+   */
+  set jwtConfig(newJwtConfig: JwtConfig) {
+    this._jwtConfig = newJwtConfig;
   }
 
   /**
@@ -105,7 +160,7 @@ export default class AuthRouter {
    * @param {express.Router} router
    */
   addGoogleAuthStrategy(router: express.Router) {
-    if (! googleOAuth2Strategy(this._passportRef, this.googleAuthConfig)) return;
+    if (! googleOAuth2Strategy(this._passportRef, this.appHost, this.googleAuthConfig)) return;
     logger.info('Added google auth strategy');
 
     router.get('/google',
@@ -126,12 +181,15 @@ export default class AuthRouter {
    * @param {express.Response} res
    */
   setActiveSession(res: express.Response) {
-    const sessionId = uuid.v1();
+    const sessionId = this.authService.generateSessionToken();
     let topic = this.toTopic(sessionId);
     this.topicService.createTopic(topic)
       .then(() => {
+        return this.authService.generateBearerToken(sessionId, this.jwtConfig);
+      })
+      .then((bearerToken) => {
         let path: string = this.appHost ? `${this.appHost}/` : '/';
-        path += `?sessionToken=${sessionId}&bearerToken=${sessionId}`;
+        path += `?sessionToken=${sessionId}&bearerToken=${bearerToken}`;
         res.location(path).status(302).json({}).end();
         logger.debug(`set sessionToken to ${sessionId}`);
       })
@@ -170,7 +228,10 @@ export default class AuthRouter {
         this.topicService
           .trySubscribeTopic(topic, connectHeaders)
           .then(() => {
-            res.status(200).json({bearerToken: sessionId}).end();
+            return this.authService.generateBearerToken(sessionId, this.jwtConfig);
+          })
+          .then((bearerToken) => {
+            res.status(200).json({bearerToken}).end();
           })
           .catch((error) => {
             logger.error(error);

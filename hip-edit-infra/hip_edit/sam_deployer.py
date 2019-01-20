@@ -55,17 +55,21 @@ def _configure_lambda(template_path, build_context):
     model = yaml.load(file(template_path, 'r'))
     lambda_vars = model['Resources']['HipEditServerApiFunction']['Properties']['Environment']['Variables']
     for name in lambda_vars.keys():
+        value = None
         if name in environ:
-            lambda_vars[name] = environ[name]
-        if name in build_context.lambda_vars():
+            value = environ[name]
+        elif name in build_context.lambda_vars():
             if name == 'npm_config_messaging_password':
                 key = environ['npm_config_messaging_user']
-                lambda_vars[name] = build_context.get(key, group_key=('services', 'activemq', 'users'))
+                value = build_context.get(key, group_key=('services', 'activemq', 'users'))
             elif name == 'npm_config_auth_agent_passcode':
                 key = environ['npm_config_auth_agent_login']
-                lambda_vars[name] = build_context.get(key, group_key=('services', 'activemq', 'users'))
+                value = build_context.get(key, group_key=('services', 'activemq', 'users'))
             else:
-                lambda_vars[name] = build_context.get(name)
+                value = build_context.get(name)
+        if value:
+            lambda_vars[name] = value
+
     yaml.dump(model, stream=file(template_path, 'w'), default_flow_style=False)
 
 

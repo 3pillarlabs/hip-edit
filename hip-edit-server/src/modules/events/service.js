@@ -1,13 +1,13 @@
 // @flow
-import EditorEvent from './domain';
-import TopicService from '../messaging/topic-service';
-import logger from '../logging';
-import AppConfig from '../app-config';
+import type {EditorEvent} from './domain';
+import {TopicService} from '../messaging/topic-service';
+import {logger} from '../logging';
+import {AppConfig} from '../app-config';
 
 /**
  * Service for events
  */
-export default class EditorEventService {
+export class EditorEventService {
   topicService: TopicService;
 
   /**

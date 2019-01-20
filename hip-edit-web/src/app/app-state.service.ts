@@ -44,4 +44,12 @@ export class AppStateService {
   hasKey(key: AppStateKey): boolean {
     return this.appKeys.find((k) => k === key) ? true : false;
   }
+
+  now(key: AppStateKey, observer: PartialObserver<any>) {
+    if (this.hasKey(key)) {
+      observer.next(this.appState[key]['value']);
+    } else if (observer.error) {
+      observer.error(new Error(`No key ${key}`));
+    }
+  }
 }

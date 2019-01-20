@@ -1,25 +1,34 @@
 import express from 'express';
 import agent from 'supertest';
-import AuthRouter from './router';
-import TopicService from '../messaging/topic-service';
+import {URL} from 'url';
+import {AuthRouter} from './router';
+import {TopicService} from '../messaging/topic-service';
+import {AuthService} from './auth-service';
 
-describe(AuthRouter, () => {
+describe(AuthRouter.name, () => {
   let app = null;
   let route = null;
   let topicService = null;
+  let authService = null;
 
   beforeEach(() => {
     app = express();
     topicService = new TopicService();
-    route = new AuthRouter(topicService, {
+    authService = new AuthService();
+    route = new AuthRouter(topicService, authService);
+    route.localAuthConfig = {
       enabled: true,
       db: [{username: 'admin', password: 'password'}],
-    }, {
+    };
+
+    route.googleAuthConfig = {
       enabled: true,
       clientID: 'spec_client',
       clientSecret: 'spec_secret',
       callbackURL: 'http://localhost:9000/auth/google/callback',
-    }, 'http://localhost:4200');
+    };
+
+    route.appHost = 'http://localhost:4200';
   });
 
   it('should initialize', () => {
@@ -29,6 +38,12 @@ describe(AuthRouter, () => {
 
   describe('POST /login', () => {
     it('should redirect on success', (done) => {
+      const fakeSessionToken = 'a1b2c3';
+      const fakeBearerToken = 'x1y2z3';
+      spyOn(AuthService.prototype, 'generateSessionToken').and.returnValue(fakeSessionToken);
+      spyOn(AuthService.prototype, 'generateBearerToken').and.callFake(() => new Promise((resolve, _reject) => {
+        resolve(fakeBearerToken);
+      }));
       spyOn(TopicService.prototype, 'createTopic').and.callFake(() => new Promise((resolve, _reject) => {
         resolve();
       }));
@@ -42,6 +57,9 @@ describe(AuthRouter, () => {
         .set('Content-Type', 'application/x-www-form-urlencoded')
         .end((error, response) => {
           expect(response.status).toBe(302);
+          const redirectURL = new URL(response.header['location']);
+          expect(redirectURL.searchParams.get('sessionToken')).toBe(fakeSessionToken);
+          expect(redirectURL.searchParams.get('bearerToken')).toBe(fakeBearerToken);
           done(error);
         });
     });
@@ -76,6 +94,12 @@ describe(AuthRouter, () => {
 
   describe('GET /google/callback', () => {
     it('should redirect to application on success', (done) => {
+      const fakeSessionToken = 'a1b2c3';
+      const fakeBearerToken = 'x1y2z3';
+      spyOn(AuthService.prototype, 'generateSessionToken').and.returnValue(fakeSessionToken);
+      spyOn(AuthService.prototype, 'generateBearerToken').and.callFake(() => new Promise((resolve, _reject) => {
+        resolve(fakeBearerToken);
+      }));
       spyOn(TopicService.prototype, 'createTopic').and.callFake(() => new Promise((resolve, _reject) => {
         resolve();
       }));
@@ -86,7 +110,10 @@ describe(AuthRouter, () => {
         .end((error, response) => {
           expect(error).toBeFalsy();
           expect(response.status).toBe(302);
-          expect(response.get('location')).toMatch(new RegExp(route.googleAuthConfig.appHost));
+          const redirectURL = new URL(response.header['location']);
+          expect(redirectURL.searchParams.get('sessionToken')).toBe(fakeSessionToken);
+          expect(redirectURL.searchParams.get('bearerToken')).toBe(fakeBearerToken);
+          expect(redirectURL.host).toEqual((new URL(route.appHost)).host);
           done(error);
         });
     });
@@ -94,6 +121,10 @@ describe(AuthRouter, () => {
 
   describe('POST /join', () => {
     it('should respond with 200 OK if session exists', (done) => {
+      const fakeBearerToken = 'x1y2z3';
+      spyOn(AuthService.prototype, 'generateBearerToken').and.callFake(() => new Promise((resolve, _reject) => {
+        resolve(fakeBearerToken);
+      }));
       spyOn(TopicService.prototype, 'trySubscribeTopic').and.callFake(() => new Promise((resolve, _reject) => {
         resolve();
       }));
@@ -107,6 +138,7 @@ describe(AuthRouter, () => {
         .set('Content-Type', 'application/json')
         .end((error, response) => {
           expect(response.status).toBe(200);
+          expect(response.body.bearerToken).toBe(fakeBearerToken);
           done(error);
         });
     });

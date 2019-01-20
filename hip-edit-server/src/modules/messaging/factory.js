@@ -1,12 +1,15 @@
+// @flow
+
 import stomp from 'stompit';
-import TopicServiceConfig from './topic-service-config';
-import TopicService from './topic-service';
+import type {TopicServiceConfigProperties} from './domain';
+import {TopicServiceConfig} from './domain';
+import {TopicService} from './topic-service';
 
 /**
  * Factory function for TopicService
- * @param {TopicServiceConfig} config
+ * @param {TopicServiceConfigProperties} config
  * @return {TopicService}
  */
-export default function _topicServiceFactory(config = null) {
+export function topicServiceFactory(config: ?TopicServiceConfigProperties = undefined) {
   return new TopicService(stomp, new TopicServiceConfig(config));
 }
