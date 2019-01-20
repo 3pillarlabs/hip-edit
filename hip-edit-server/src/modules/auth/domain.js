@@ -24,3 +24,13 @@ export type JwtConfig = {
   expiresIn: number,
   issuer: string
 }
+
+export type EventOptions = {
+  authorizationToken: string,
+  methodArn: string,
+  [string]: any
+}
+
+export type AuthorizerCallback = (any, any) => void;
+
+export type AuthorizerHandler = (EventOptions, {[string]: any}, AuthorizerCallback) => Promise<void>;

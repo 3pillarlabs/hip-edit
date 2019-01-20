@@ -7,7 +7,13 @@
  * @return {Error}
  */
 export function toError(error: any): Error {
-  return error instanceof Error ? error : new Error(error);
+  if (error instanceof Error) {
+    return error;
+  } else if (error instanceof String) {
+    return new Error(error);
+  } else {
+    return new Error(JSON.stringify(error));
+  }
 }
 
 /**
