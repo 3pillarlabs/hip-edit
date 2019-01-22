@@ -53,22 +53,24 @@ def _deploy(stack_name, packaged_template_path, driver, role_arn=None):
 
 def _configure_lambda(template_path, build_context):
     model = yaml.load(file(template_path, 'r'))
-    lambda_vars = model['Resources']['HipEditServerApiFunction']['Properties']['Environment']['Variables']
-    for name in lambda_vars.keys():
-        value = None
-        if name in environ:
-            value = environ[name]
-        elif name in build_context.lambda_vars():
-            if name == 'npm_config_messaging_password':
-                key = environ['npm_config_messaging_user']
-                value = build_context.get(key, group_key=('services', 'activemq', 'users'))
-            elif name == 'npm_config_auth_agent_passcode':
-                key = environ['npm_config_auth_agent_login']
-                value = build_context.get(key, group_key=('services', 'activemq', 'users'))
-            else:
-                value = build_context.get(name)
-        if value:
-            lambda_vars[name] = value
+    lambda_functions = ['HipEditServerApiFunction', 'HipEditLambdaAuthorizerFunction']
+    for function in lambda_functions:
+        lambda_vars = model['Resources'][function]['Properties']['Environment']['Variables']
+        for name in lambda_vars.keys():
+            value = None
+            if name in environ:
+                value = environ[name]
+            elif name in build_context.lambda_vars():
+                if name == 'npm_config_messaging_password':
+                    key = environ['npm_config_messaging_user']
+                    value = build_context.get(key, group_key=('services', 'activemq', 'users'))
+                elif name == 'npm_config_auth_agent_passcode':
+                    key = environ['npm_config_auth_agent_login']
+                    value = build_context.get(key, group_key=('services', 'activemq', 'users'))
+                else:
+                    value = build_context.get(name)
+            if value:
+                lambda_vars[name] = value
 
     yaml.dump(model, stream=file(template_path, 'w'), default_flow_style=False)
 
