@@ -94,6 +94,12 @@ describe('JoinSessionComponent', () => {
 
   describe('joinSession', () => {
     it('should route to session/:id', () => {
+      const service = TestBed.get(JoinSessionService);
+      service.verifyBearerToken = () => {
+        return {
+          subscribe: (observer: { complete: () => void; }) => observer.complete()
+        }
+      };
       simulateFormFill({
         sessionToken: sessionToken,
         userAlias: '#truthy'

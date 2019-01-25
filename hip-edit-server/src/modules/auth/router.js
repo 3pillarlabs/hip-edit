@@ -16,7 +16,6 @@ import type {LocalAuthConfig, GoogleAuthConfig, JwtConfig} from './domain';
  * Auth router
  */
 export class AuthRouter {
-  _passportRef: passport;
   topicService: TopicService;
   authService: AuthService;
 
@@ -31,7 +30,6 @@ export class AuthRouter {
    * Constructor
    */
   constructor(topicService: TopicService, authService: AuthService) {
-    this._passportRef = passport;
     this.topicService = topicService;
     this.authService = authService;
 
@@ -50,21 +48,6 @@ export class AuthRouter {
     if (AppConfig.auth && AppConfig.auth.jwt) {
       this._jwtConfig = AppConfig.auth.jwt;
     }
-  }
-
-  /**
-   * @return {passport}
-   */
-  get passportRef(): passport {
-    return this._passportRef;
-  }
-
-  /**
-   * @param {passport} newPassportRef
-   */
-  set passportRef(newPassportRef: passport | void) {
-    this._passportRef = newPassportRef;
-    logger.debug(`set new passport ref: ${this._passportRef || 'undefined'}`);
   }
 
   /**
@@ -128,10 +111,11 @@ export class AuthRouter {
    */
   router(): express.Router {
     const router = express.Router();
-    router.use(this._passportRef.initialize());
+    router.use(passport.initialize());
     this.addLocalStrategy(router);
     this.addGoogleAuthStrategy(router);
     this.addJoinRoute(router);
+    this.addVerifyRoute(router);
     return router;
   }
 
@@ -140,11 +124,11 @@ export class AuthRouter {
    * @param {express.Router} router
    */
   addLocalStrategy(router: express.Router) {
-    if (!localAuthStrategy(this._passportRef, this.localAuthConfig)) return;
+    if (!localAuthStrategy(this.localAuthConfig)) return;
     logger.info('Added login auth strategy');
 
     router.post('/login', urlencoded({extended: true}), (req, res, next) => {
-      this._passportRef.authenticate('local', {session: false}, (err, user, info) => {
+      passport.authenticate('local', {session: false}, (err, user, info) => {
         if (err) return next(err);
         if (!user) {
           res.status(401).end();
@@ -160,15 +144,15 @@ export class AuthRouter {
    * @param {express.Router} router
    */
   addGoogleAuthStrategy(router: express.Router) {
-    if (! googleOAuth2Strategy(this._passportRef, this.appHost, this.googleAuthConfig)) return;
+    if (! googleOAuth2Strategy(this.appHost, this.googleAuthConfig)) return;
     logger.info('Added google auth strategy');
 
     router.get('/google',
-      this._passportRef.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
+      passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']})
     );
 
     router.get('/google/callback',
-      this._passportRef.authenticate('google', {session: false, failureRedirect: '/'}),
+      passport.authenticate('google', {session: false, failureRedirect: '/'}),
       (req, res) => {
         logger.debug(req.user);
         this.setActiveSession(res);
@@ -241,6 +225,24 @@ export class AuthRouter {
         logger.error(error);
         res.status(401).json(toObject(error)).end();
       }
+    });
+  }
+
+  /**
+   * /verify
+   * @param {express.Router} router
+   */
+  addVerifyRoute(router: express.Router) {
+    router.head('/verify', (req, res) => {
+      this.authService.verifyBearerToken(req.query.bearerToken, this.jwtConfig)
+        .then((decoded) => {
+          if (decoded.nonce === req.query.sessionToken) {
+            res.status(200).end();
+          } else {
+            res.status(401).json({message: 'Invalid payload'}).end();
+          }
+        })
+        .catch((error: Error) => res.status(401).json({message: error.message}).end());
     });
   }
 }

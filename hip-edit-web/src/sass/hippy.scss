@@ -11,6 +11,10 @@ html {
   @include typeface(text);
 };
 
+body {
+  background-color: $primary-color;
+}
+
 h1, h2, h3 {
   @include typeface(heading);
 }

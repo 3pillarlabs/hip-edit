@@ -108,6 +108,7 @@
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jasmine": "^2.9.3",
     "flow-bin": "^0.89.0",
+    "flow-typed": "^2.5.1",
     "jasmine": "^3.1.0",
     "jasmine-console-reporter": "^3.1.0",
     "nodemon": "^1.17.1",

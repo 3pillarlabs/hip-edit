@@ -10,12 +10,11 @@ import type {GoogleAuthConfig} from './domain';
 /**
  * Use Google OAuth2 strategy with passport
  *
- * @param {passport} passport module
  * @param {string} appHost application host URL
- * @param {Object} config
+ * @param {GoogleAuthConfig} config
  * @return {boolean} true if the strategy was applied, false otherwise
  */
-export function googleOAuth2Strategy(passport: passport, appHost: string, config: GoogleAuthConfig) {
+export function googleOAuth2Strategy(appHost: string, config: GoogleAuthConfig) {
   if (!config.enabled) {
     logger.debug('skipping google auth');
     return false;

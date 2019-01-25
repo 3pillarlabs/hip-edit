@@ -2,7 +2,6 @@
 
 import uuid from 'uuid';
 import jwt from 'jsonwebtoken';
-import _ from 'lodash';
 
 import {toError} from '../app-error';
 import {logger} from '../logging';
@@ -54,24 +53,15 @@ export class AuthService {
    */
   verifyBearerToken(bearerToken: string, conf: JwtConfig): Promise<{[string]: any}> {
     return new Promise((resolve, reject) => {
-      jwt.verify(bearerToken, conf.secretKey,
-                 {
-                   issuer: `${conf.issuer}/auth-service`,
-                 }, (err: Error | any | void, decoded: {[string]: any}) => {
-        if (err) {
-          logger.error(err);
-          return reject(toError(err));
-        }
+      jwt.verify(bearerToken, conf.secretKey, {issuer: `${conf.issuer}/auth-service`},
+        (err: ?Error, decoded: {[string]: any}) => {
+          if (err) {
+            logger.error(err);
+            return reject(toError(err));
+          }
 
-        if (! _.has(decoded, 'nonce')) {
-          return reject(toError({
-            name: 'JsonWebTokenError',
-            message: 'jwt malformed',
-          }));
-        }
-
-        resolve(decoded);
-      });
+          resolve(decoded);
+        });
     });
   }
 }
