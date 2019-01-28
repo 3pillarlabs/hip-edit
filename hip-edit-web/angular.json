@@ -73,7 +73,9 @@
               "browserTarget": "hip-edit-web:build:production"
             },
             "e2e": {
-              "browserTarget": "hip-edit-web:build:e2e"
+              "browserTarget": "hip-edit-web:build:e2e",
+              "proxyConfig": "proxy.conf.json",
+              "port": 49152
             }
           }
         },
@@ -124,7 +126,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "hip-edit-web:serve"
+            "devServerTarget": "hip-edit-web:serve:e2e"
           }
         },
         "lint": {

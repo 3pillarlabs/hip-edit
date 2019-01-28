@@ -5,7 +5,7 @@ import { HttpClient } from "@angular/common/http";
 import { EditorEventService } from './editor-event.service';
 import { environment } from '../../environments/environment';
 import { AppStateService } from '../app-state.service';
-import { PartialObserver } from 'rxjs/Observer';
+import { PartialObserver } from 'rxjs';
 
 describe('EditorEventService', () => {
   let service: EditorEventService;

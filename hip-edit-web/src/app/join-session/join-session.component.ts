@@ -6,8 +6,7 @@ import { CodeSession } from './data-model';
 import { JoinSessionService } from './join-session.service';
 import { AppStateService } from '../app-state.service';
 import { AppStateKey } from '../app-state-key';
-import { Observable } from 'rxjs/Observable';
-import { Subscriber } from 'rxjs/Subscriber';
+import { Observable ,  Subscriber } from 'rxjs';
 
 @Component({
   selector: 'app-join-session',

@@ -3,10 +3,6 @@ import { AppPage } from './app.po';
 import { ApiClient } from './api-client';
 
 describe('hip-edit-web user', () => {
-  const sessionTokenFn = () => {
-    return randomBytes(16).toString('hex');
-  }
-
   const apiClient = new ApiClient({host: 'localhost', port: 9000});
   let page: AppPage;
   let sessionToken: string | void;

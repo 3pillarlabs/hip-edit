@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, Input, NgZone } from '@angular/core';
-import { ISubscription } from 'rxjs/Subscription';
+import { SubscriptionLike as ISubscription } from 'rxjs';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { EditorEvent } from './code-editor-event';
