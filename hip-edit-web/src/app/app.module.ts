@@ -11,8 +11,11 @@ import { EditorEventService }      from './code-editor/editor-event.service';
 import { PubsubService }           from './pubsub.service';
 import { JoinSessionComponent }    from './join-session/join-session.component';
 import { NewSessionComponent }     from './new-session/new-session.component';
-import { AppStateService }         from './app-state.service';
 import { JoinSessionService }      from './join-session/join-session.service';
+import { StoreModule } from '@ngrx/store';
+import { reducers, metaReducers } from './reducers';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
 
 const appRoutes: Routes = [
   { path: 'session/:sessionToken', component: CodeEditorComponent,  outlet: 'editors' },
@@ -33,13 +36,14 @@ const appRoutes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     MaterialModule,
-    RouterModule.forRoot(appRoutes)
+    RouterModule.forRoot(appRoutes),
+    StoreModule.forRoot(reducers, { metaReducers }),
+    !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
   providers: [
     Title,
     EditorEventService,
     PubsubService,
-    AppStateService,
     JoinSessionService
   ],
   bootstrap: [AppComponent]

@@ -4,9 +4,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CodeSession } from './data-model';
 import { JoinSessionService } from './join-session.service';
-import { AppStateService } from '../app-state.service';
-import { AppStateKey } from '../app-state-key';
-import { Observable ,  Subscriber } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { LoginAction } from '../actions/login.actions';
+import { State } from '../reducers';
 
 @Component({
   selector: 'app-join-session',
@@ -21,8 +21,7 @@ export class JoinSessionComponent implements OnInit {
               private fb: FormBuilder,
               private route: ActivatedRoute,
               private joinSessionService: JoinSessionService,
-              private appStateService: AppStateService) {
-  }
+              private store: Store<State>) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe({
@@ -36,9 +35,15 @@ export class JoinSessionComponent implements OnInit {
     this.route.queryParamMap.subscribe({
       next: (params: ParamMap) => {
         if (params.has('bearerToken') && params.has('sessionToken')) {
+          this.joinSessionForm.disable();
           const sessionToken = params.get('sessionToken');
-          this.saveBearerTokenState(params.get('bearerToken'), sessionToken).subscribe({
-            complete: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }])
+          const bearerToken = params.get('bearerToken');
+          this.joinSessionService.verifyBearerToken(bearerToken, sessionToken).subscribe({
+            complete: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]),
+            error: () => {
+              this.invalidSessionToken = true;
+              this.joinSessionForm.enable();
+            }
           });
         }
       }
@@ -71,27 +76,14 @@ export class JoinSessionComponent implements OnInit {
     this.joinSessionForm.disable();
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
       next: (cs) => {
-        this.saveBearerTokenState(cs.bearerToken, sessionToken).subscribe({
-          complete: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }])
-        });
+        this.store.dispatch(new LoginAction({ sessionToken, bearerToken: cs.bearerToken }));
+        this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
       },
       error: (error) => {
         console.error(error);
         this.invalidSessionToken = true;
         this.joinSessionForm.enable();
       }
-    });
-  }
-
-  private saveBearerTokenState(bearerToken: string, sessionToken: string) {
-    return new Observable<void>((observer: Subscriber<void>) => {
-      this.joinSessionService.verifyBearerToken(bearerToken, sessionToken).subscribe({
-        complete: () => {
-          this.appStateService.setValue(AppStateKey.BearerToken, bearerToken);
-          observer.complete();
-        },
-        error: (error) => observer.error(error)
-      });
     });
   }
 
