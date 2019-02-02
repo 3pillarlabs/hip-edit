@@ -3,12 +3,13 @@ import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 
 import { CodeEditorComponent } from './code-editor.component';
 import { MaterialModule } from '../material.module';
 import { EditorEventService } from './editor-event.service';
 import { PubsubService } from '../pubsub.service';
-import { AppStateService } from '../app-state.service';
+import { reducers, metaReducers } from '../reducers';
 
 describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;
@@ -22,7 +23,8 @@ describe('CodeEditorComponent', () => {
       ],
       imports: [
         FormsModule,
-        MaterialModule
+        MaterialModule,
+        StoreModule.forRoot(reducers, { metaReducers })
       ],
       providers: [
         {
@@ -53,13 +55,6 @@ describe('CodeEditorComponent', () => {
               }
             }
           },
-        },
-        {
-          provide: AppStateService,
-          useValue: {
-            hasKey: spyOn(AppStateService.prototype, 'hasKey').and.returnValue(true),
-            setValue: spyOn(AppStateService.prototype, 'setValue').and.stub()
-          }
         },
         {
           provide: Router,

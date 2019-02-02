@@ -34,7 +34,7 @@ cd ../hip-edit-server
 npm run integration:spec:sam:start
 ```
 
-On another terminal, run `ng e2e --proxy-conf proxy.conf.json --env e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+On another terminal, run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
 Stop the API services by `docker stop activemq`.
 

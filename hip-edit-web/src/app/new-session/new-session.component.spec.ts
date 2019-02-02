@@ -1,7 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { StoreModule } from '@ngrx/store';
 
 import { NewSessionComponent } from './new-session.component';
 import { AppStateService } from '../app-state.service';
+import { reducers, metaReducers } from '../reducers';
 
 
 describe('NewSessionComponent', () => {
@@ -16,6 +18,9 @@ describe('NewSessionComponent', () => {
           provide: AppStateService,
           useValue: new AppStateService()
         }
+      ],
+      imports: [
+        StoreModule.forRoot(reducers, { metaReducers })
       ]
     })
     .compileComponents();

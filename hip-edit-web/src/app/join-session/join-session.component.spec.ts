@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 
 import { MaterialModule } from '../material.module';
 import { JoinSessionComponent } from './join-session.component';
 import { CodeSession } from './data-model';
 import { JoinSessionService } from './join-session.service';
-import { AppStateService } from '../app-state.service';
+import { reducers, metaReducers } from '../reducers';
 
 describe('JoinSessionComponent', () => {
   let component: JoinSessionComponent;
@@ -32,7 +33,8 @@ describe('JoinSessionComponent', () => {
       declarations: [ JoinSessionComponent ],
       imports: [
         ReactiveFormsModule,
-        MaterialModule
+        MaterialModule,
+        StoreModule.forRoot(reducers, { metaReducers })
       ],
       providers: [
         { provide: Router, useValue: routerSpy },
@@ -63,12 +65,6 @@ describe('JoinSessionComponent', () => {
               }
             }
           }
-        },
-        {
-          provide: AppStateService,
-          useValue: {
-            setValue: spyOn(AppStateService.prototype, 'setValue').and.stub()
-          }
         }
       ]
     })
@@ -94,6 +90,12 @@ describe('JoinSessionComponent', () => {
 
   describe('joinSession', () => {
     it('should route to session/:id', () => {
+      const service = TestBed.get(JoinSessionService);
+      service.verifyBearerToken = () => {
+        return {
+          subscribe: (observer: { complete: () => void; }) => observer.complete()
+        }
+      };
       simulateFormFill({
         sessionToken: sessionToken,
         userAlias: '#truthy'

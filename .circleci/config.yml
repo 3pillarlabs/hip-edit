@@ -31,7 +31,7 @@ jobs:
           command: cd hip-edit-web && npm install
       - run:
           name: Run tests
-          command: cd hip-edit-web && npx ng test --single-run --browsers ChromeHeadless --progress false --colors false
+          command: cd hip-edit-web && npx ng test --watch false --browsers ChromeHeadless --progress false
 
 
 workflows:

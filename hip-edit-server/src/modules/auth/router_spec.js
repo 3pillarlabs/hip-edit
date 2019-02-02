@@ -1,13 +1,16 @@
+// @flow
+
 import express from 'express';
 import agent from 'supertest';
+import passport from 'passport';
 import {URL} from 'url';
 import {AuthRouter} from './router';
 import {TopicService} from '../messaging/topic-service';
 import {AuthService} from './auth-service';
 
 describe(AuthRouter.name, () => {
-  let app = null;
-  let route = null;
+  let app: express;
+  let route: AuthRouter;
   let topicService = null;
   let authService = null;
 
@@ -60,7 +63,7 @@ describe(AuthRouter.name, () => {
           const redirectURL = new URL(response.header['location']);
           expect(redirectURL.searchParams.get('sessionToken')).toBe(fakeSessionToken);
           expect(redirectURL.searchParams.get('bearerToken')).toBe(fakeBearerToken);
-          done(error);
+          done();
         });
     });
 
@@ -75,7 +78,7 @@ describe(AuthRouter.name, () => {
         .set('Content-Type', 'application/x-www-form-urlencoded')
         .end((error, response) => {
           expect(response.status).toBe(401);
-          done(error);
+          done();
         });
     });
   });
@@ -87,7 +90,7 @@ describe(AuthRouter.name, () => {
         .get('/google')
         .end((error, response) => {
           expect(response.status).toBe(302);
-          done(error);
+          done();
         });
     });
   });
@@ -103,7 +106,7 @@ describe(AuthRouter.name, () => {
       spyOn(TopicService.prototype, 'createTopic').and.callFake(() => new Promise((resolve, _reject) => {
         resolve();
       }));
-      spyOn(route.passportRef, 'authenticate').and.returnValue((req, res, next) => next());
+      spyOn(passport, 'authenticate').and.returnValue((req, res, next) => next());
       app.use('/', route.router());
       agent(app)
         .get('/google/callback')
@@ -114,7 +117,7 @@ describe(AuthRouter.name, () => {
           expect(redirectURL.searchParams.get('sessionToken')).toBe(fakeSessionToken);
           expect(redirectURL.searchParams.get('bearerToken')).toBe(fakeBearerToken);
           expect(redirectURL.host).toEqual((new URL(route.appHost)).host);
-          done(error);
+          done();
         });
     });
   });
@@ -139,7 +142,7 @@ describe(AuthRouter.name, () => {
         .end((error, response) => {
           expect(response.status).toBe(200);
           expect(response.body.bearerToken).toBe(fakeBearerToken);
-          done(error);
+          done();
         });
     });
 
@@ -157,7 +160,46 @@ describe(AuthRouter.name, () => {
         .set('Content-Type', 'application/json')
         .end((error, response) => {
           expect(response.status).toBe(401);
-          done(error);
+          done();
+        });
+    });
+  });
+
+  describe('HEAD /verify', () => {
+    it('should respond with 200 if verification succeeds', (done) => {
+      spyOn(AuthService.prototype, 'verifyBearerToken').and.callFake(() => new Promise((resolve, reject) => {
+        resolve({nonce: 'payload'});
+      }));
+      app.use('/', route.router());
+      agent(app)
+        .head(`/verify?bearerToken=ok&sessionToken=payload`)
+        .end((error, response) => {
+          expect(response.status).toBe(200);
+          done();
+        });
+    });
+    it('should respond with 401 if payload verification fails', (done) => {
+      spyOn(AuthService.prototype, 'verifyBearerToken').and.callFake(() => new Promise((resolve, reject) => {
+        resolve({nonce: 'fakePayload'});
+      }));
+      app.use('/', route.router());
+      agent(app)
+        .head(`/verify?bearerToken=notok&sessionToken=payload`)
+        .end((error, response) => {
+          expect(response.status).toBe(401);
+          done();
+        });
+    });
+    it('should respond with 401 if token verification fails', (done) => {
+      spyOn(AuthService.prototype, 'verifyBearerToken').and.callFake(() => new Promise((resolve, reject) => {
+        reject(new Error('Malformed mock token'));
+      }));
+      app.use('/', route.router());
+      agent(app)
+        .head(`/verify?bearerToken=notok&sessionToken=payload`)
+        .end((error, response) => {
+          expect(response.status).toBe(401);
+          done();
         });
     });
   });

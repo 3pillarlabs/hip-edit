@@ -1,10 +1,12 @@
-import {subscribeError} from 'stompit';
+// @flow
+
+import {subscribeError, Client} from 'stompit';
 import {TopicService} from './topic-service';
 import {TopicServiceConfig} from './domain';
 
 describe(TopicService.name, () => {
-  let stompClient = null;
-  let topicService = null;
+  let stompClient: Client;
+  let topicService: TopicService;
   let config = new TopicServiceConfig();
 
   beforeEach(() => {
@@ -14,55 +16,35 @@ describe(TopicService.name, () => {
 
   describe('#postToTopic', () => {
     it('should call stomp#connect', () => {
-      topicService.postToTopic('/xburant', 'e');
+      let promise = topicService.postToTopic('/xburant', 'e');
+      expect(promise).toBeTruthy();
       expect(stompClient.connect).toHaveBeenCalled();
     });
   });
 
-  describe('#delegate.connect', () => {
+  describe('#delegate', () => {
     it('should write the data to client frame', () => {
       let resolve = jasmine.createSpy('resolve');
       let onConnect = topicService.delegate('/vim', 'over emacs', {}, resolve, null);
       let frame = jasmine.createSpyObj('Frame', ['end']);
-      let client = jasmine.createSpyObj('Client', {send: frame});
-      client.disconnect = (r) => {
-        r();
-      };
+      let client = jasmine.createSpyObj('Client', ['send', 'disconnect']);
+      client.send.and.returnValue(frame);
+      client.disconnect.and.callFake((cb) => cb());
       onConnect(null, client);
       expect(resolve).toHaveBeenCalled();
     });
     it('should reject on connect error', () => {
       let reject = jasmine.createSpy('reject');
       let onConnect = topicService.delegate('/vim', 'over emacs', {}, null, reject);
-      onConnect({message: 'connect error'}, null);
+      onConnect({message: 'mock connect error'}, null);
       expect(reject).toHaveBeenCalled();
     });
     it('should reject on error after connection', () => {
       let reject = jasmine.createSpy('reject');
       let onConnect = topicService.delegate('/vim', 'over emacs', {}, null, reject);
       let frame = {
-        write: () => {
-          throw new Error('write error');
-        },
-
-        on: () => {},
-      };
-      let client = jasmine.createSpyObj('Client', {send: frame});
-      onConnect(null, client);
-      expect(reject).toHaveBeenCalled();
-    });
-    it('should reject on write error', () => {
-      let reject = jasmine.createSpy('reject');
-      let onConnect = topicService.delegate('/vim', 'over emacs', {}, null, reject);
-      let eventHandlers = [];
-      let frame = {
-
-        write: () => {
-          eventHandlers[0]['error'](new Error('write error'));
-        },
-
-        on: (eventName, fn) => {
-          eventHandlers.push({'error': fn});
+        end: () => {
+          throw new Error('mock write error');
         },
       };
       let client = jasmine.createSpyObj('Client', {send: frame});

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { AppStateService } from '../app-state.service';
-import { AppStateKey } from '../app-state-key';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+
+import { State } from '../reducers';
 
 @Component({
   selector: 'app-new-session',
@@ -10,17 +12,15 @@ import { AppStateKey } from '../app-state-key';
 })
 export class NewSessionComponent implements OnInit {
   authUrl: string;
-  sessionNotEstablished: boolean = true;
+  sessionNotEstablished$: Observable<boolean>;
 
-  constructor(private appStateService: AppStateService) {
+  constructor(private store: Store<State>) {
     this.authUrl = environment.production ? `${environment.hipEditApiPrefix}/auth/google` :
                                             `/login.html?action=${environment.hipEditApiPrefix}/auth/login`;
   }
 
   ngOnInit() {
-    this.appStateService.subscribeKey(AppStateKey.SessionToken, {
-      next: (_value) => this.sessionNotEstablished = false
-    });
+    this.sessionNotEstablished$ = this.store.select((state) => !state.session.loggedIn);
   }
 
 }

@@ -1,3 +1,4 @@
+// @flow
 
 import {createHandler} from './aws-handler';
 import {AuthService} from './auth-service';
@@ -24,7 +25,7 @@ describe(createHandler.name, () => {
           expect(callback.calls.first().args[1]).toBeTruthy();
           done();
         })
-        .catch((error) => done(error));
+        .catch((error) => fail(error));
     });
   });
 
@@ -42,7 +43,7 @@ describe(createHandler.name, () => {
           expect(error).toBeTruthy();
           done();
         })
-        .catch((error) => done(error));
+        .catch((error) => fail(error));
     });
   });
 });

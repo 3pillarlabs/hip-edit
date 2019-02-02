@@ -17,7 +17,7 @@ export type MessageOptions = ?{
  */
 export class TopicService {
   stompClient: Client;
-  config: TopicServiceConfig;
+  config: ?TopicServiceConfig;
   topicPrefixRegex: RegExp;
 
   /**
@@ -25,7 +25,7 @@ export class TopicService {
    * @param {stompit.Client} stompClient
    * @param {TopicServiceConfig} config
    */
-  constructor(stompClient: Client, config: TopicServiceConfig) {
+  constructor(stompClient: ?Client, config: ?TopicServiceConfig) {
     this.stompClient = stompClient;
     this.config = config;
     this.topicPrefixRegex = new RegExp('^/');
@@ -56,7 +56,7 @@ export class TopicService {
    */
    delegate(topic: string, doc: string, messageOptions: MessageOptions,
             resolve: Function, reject: Function): Function {
-     return (error: Error | any, client: Client) => {
+     return (error: ?Error, client: Client) => {
        if (error) {
          logger.error(error);
          reject(toError(error));

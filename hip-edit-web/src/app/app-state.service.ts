@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PartialObserver } from 'rxjs/Observer';
+import { PartialObserver } from 'rxjs';
 import { AppStateKey } from './app-state-key';
 
 @Injectable()

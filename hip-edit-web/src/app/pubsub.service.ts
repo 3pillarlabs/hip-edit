@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
+import { Observable ,  Observer } from 'rxjs';
 import { client as stompClientFactory } from '@stomp/stompjs';
 
 import { EditorEvent } from './code-editor/code-editor-event';

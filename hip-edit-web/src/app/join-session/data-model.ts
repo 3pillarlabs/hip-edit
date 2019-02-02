@@ -1,4 +1,6 @@
-export class CodeSession {
-  sessionToken: string = undefined;
-  userAlias: string = undefined;
+export interface CodeSession {
+  loggedIn?: boolean;
+  sessionToken?: string;
+  userAlias?: string;
+  bearerToken?: string;
 }

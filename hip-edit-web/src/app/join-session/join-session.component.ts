@@ -4,8 +4,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CodeSession } from './data-model';
 import { JoinSessionService } from './join-session.service';
-import { AppStateService } from '../app-state.service';
-import { AppStateKey } from '../app-state-key';
+import { Store } from '@ngrx/store';
+import { LoginAction } from '../actions/login.actions';
+import { State } from '../reducers';
 
 @Component({
   selector: 'app-join-session',
@@ -20,8 +21,7 @@ export class JoinSessionComponent implements OnInit {
               private fb: FormBuilder,
               private route: ActivatedRoute,
               private joinSessionService: JoinSessionService,
-              private appStateService: AppStateService) {
-  }
+              private store: Store<State>) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe({
@@ -35,8 +35,16 @@ export class JoinSessionComponent implements OnInit {
     this.route.queryParamMap.subscribe({
       next: (params: ParamMap) => {
         if (params.has('bearerToken') && params.has('sessionToken')) {
-          this.appStateService.setValue(AppStateKey.BearerToken, params.get('bearerToken'));
-          this.router.navigate([{ outlets: { editors: ['session', params.get('sessionToken')] } }]);
+          this.joinSessionForm.disable();
+          const sessionToken = params.get('sessionToken');
+          const bearerToken = params.get('bearerToken');
+          this.joinSessionService.verifyBearerToken(bearerToken, sessionToken).subscribe({
+            complete: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]),
+            error: () => {
+              this.invalidSessionToken = true;
+              this.joinSessionForm.enable();
+            }
+          });
         }
       }
     })
@@ -68,10 +76,8 @@ export class JoinSessionComponent implements OnInit {
     this.joinSessionForm.disable();
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
       next: (cs) => {
-        this.appStateService.setValue(AppStateKey.BearerToken, cs.bearerToken);
-        console.debug('herw 1');
+        this.store.dispatch(new LoginAction({ sessionToken, bearerToken: cs.bearerToken }));
         this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
-        console.debug('herw 2');
       },
       error: (error) => {
         console.error(error);

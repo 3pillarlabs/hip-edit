@@ -16,12 +16,12 @@ export type GoogleAuthConfig = {
   clientID: string,
   clientSecret: string,
   callbackURL: string,
-  prompt: string
+  prompt?: string
 }
 
 export type JwtConfig = {
   secretKey: string,
-  expiresIn: number,
+  expiresIn?: number,
   issuer: string
 }
 

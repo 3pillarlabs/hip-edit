@@ -1,12 +1,13 @@
 import { Component, OnInit, AfterViewInit, Input, NgZone } from '@angular/core';
-import { ISubscription } from 'rxjs/Subscription';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { SubscriptionLike as ISubscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 
 import { EditorEvent } from './code-editor-event';
 import { EditorEventService } from './editor-event.service';
 import { PubsubService } from '../pubsub.service';
-import { AppStateService } from '../app-state.service';
-import { AppStateKey } from '../app-state-key';
+import { LoginAction } from '../actions/login.actions';
+import { State } from '../reducers';
 
 @Component({
   selector: 'app-code-editor',
@@ -23,22 +24,15 @@ export class CodeEditorComponent implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private editorEventService: EditorEventService,
     private pubsubService: PubsubService,
     private ngZone: NgZone,
-    private appStateService: AppStateService) { }
+    private store: Store<State>) { }
 
   ngOnInit() {
-    if (!this.appStateService.hasKey(AppStateKey.BearerToken)) {
-      return this.router.navigate([{ outlets: { editors: [''] } }]);
-    }
-
-    this.route.paramMap.subscribe({
-      next: (params: ParamMap) => {
-        this.sessionToken = params.get('sessionToken');
-        this.appStateService.setValue(AppStateKey.SessionToken, this.sessionToken);
-        console.debug(`sessionToken: ${this.sessionToken}`);
+    this.store.select((state) => state.session.loggedIn).toPromise().then((loggedIn: boolean) => {
+      if (!loggedIn) {
+        this.router.navigate([{ outlets: { editors: [''] } }]);
       }
     });
   }
