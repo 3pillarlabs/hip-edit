@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 
-import { EditorEvent } from './code-editor-event';
-import { environment } from '../../environments/environment';
-import { State } from '../reducers';
+import { EditorEvent } from '../../domain/code-editor-event';
+import { environment } from '../../../environments/environment';
+import { State } from '../../reducers';
 
 @Injectable()
 export class EditorEventService {
@@ -18,9 +19,11 @@ export class EditorEventService {
       sessionToken: sessionToken
     };
 
-    return new Observable<EditorEvent>(observer => {
+    // TODO: idiomatic rxjs
+    return new Observable<EditorEvent>((observer) => {
       this.store
         .select(state => state.session)
+        .pipe(take(1))
         .subscribe({
           next: (session) => {
             this.http
@@ -33,7 +36,8 @@ export class EditorEventService {
                 next: (value) => observer.next(value),
                 error: (error) => observer.error(error)
               });
-          }
+          },
+          error: (error) => observer.error(error)
         });
     });
   }

@@ -1,6 +1,6 @@
 <nav>
   <div class="row">
-    <div class="col-xs-10">
+    <div class="col-md-3">
       <a href="/">
         <div class="brand">
           <div>
@@ -12,11 +12,31 @@
         </div>
       </a>
     </div>
-    <app-new-session></app-new-session>
+    <div class="col-md-7" role="menu">
+      <div class="row" *ngIf="sessionEstablished$ | async">
+        <div class="col-md-2">
+          <a routerLink="/editor/{{sessionToken$ | async}}"><h2>Editor</h2></a>
+        </div>
+        <!--
+        <div class="col-md-2">
+          <a routerLink="/editor/{{sessionToken$ | async}}"><h2>Board</h2></a>
+        </div>
+        <div class="col-md-2">
+          <a routerLink="/editor/{{sessionToken$ | async}}"><h2>Analytics</h2></a>
+        </div>
+        <div class="col-md-6 end-md">
+          <a routerLink="/editor/{{sessionToken$ | async}}"><h2>CMS</h2></a>
+        </div>
+        -->
+      </div>
+    </div>
+    <div class="col-md-2 vh-offset-1 end-md">
+      <app-new-session></app-new-session>
+    </div>
   </div>
 </nav>
 <main>
-  <router-outlet name="editors"></router-outlet>
+  <router-outlet></router-outlet>
 </main>
 <footer>
   <div class="row">
@@ -31,7 +51,7 @@
     <div class="col-md-2">
       <h3>Tech Stack</h3>
       <ul>
-        <li>Angular 5</li>
+        <li>Angular 7</li>
         <li>Angular Material</li>
         <li>Express JS</li>
         <li>Troposphere</li>

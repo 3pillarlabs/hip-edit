@@ -3,7 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { Store, StoreModule } from '@ngrx/store';
 
 import { EditorEventService } from './editor-event.service';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 describe('EditorEventService', () => {

@@ -6,15 +6,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 
 import { CodeEditorComponent } from './code-editor.component';
-import { MaterialModule } from '../material.module';
+import { MaterialModule } from '../../material.module';
 import { EditorEventService } from './editor-event.service';
-import { PubsubService } from '../pubsub.service';
-import { reducers, metaReducers } from '../reducers';
+import { PubsubService } from '../../pubsub.service';
+import { reducers, metaReducers } from '../../reducers';
 
 describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;
   let fixture: ComponentFixture<CodeEditorComponent>;
   let textAreEl: DebugElement;
+  let observer = {
+    subscribe: () => { unsubscribe: () => {} },
+    pipe: () => observer
+  }
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -36,9 +40,7 @@ describe('CodeEditorComponent', () => {
         {
           provide: PubsubService,
           useClass: class {
-            editorEventsStream = jasmine.createSpy('editorEventsStream').and.returnValue({subscribe: () => {
-              return { unsubscribe: () => {} }
-            }});
+            editorEventsStream = jasmine.createSpy('editorEventsStream').and.returnValue(observer);
           }
         },
         {

@@ -1,4 +1,4 @@
-import { CodeSession } from '../join-session/data-model';
+import { CodeSession } from '../domain/data-model';
 import { LoginActions, LoginActionTypes } from '../actions/login.actions';
 
 export type SessionState = CodeSession;
@@ -14,6 +14,9 @@ export function reducer(state = initialState, action: LoginActions): CodeSession
         return { ...state, ...action.payload, loggedIn: true };
       }
       return state;
+    }
+    case LoginActionTypes.Logout: {
+      return initialState;
     }
     default:
       return state;
