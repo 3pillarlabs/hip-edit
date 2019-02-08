@@ -15,6 +15,9 @@ export function reducer(state = initialState, action: LoginActions): CodeSession
       }
       return state;
     }
+    case LoginActionTypes.Logout: {
+      return initialState;
+    }
     default:
       return state;
   }

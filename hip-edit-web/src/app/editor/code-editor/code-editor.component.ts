@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewInit, Input, NgZone } from '@angular/core';
-import { SubscriptionLike as ISubscription } from 'rxjs';
+import { Component, OnInit, AfterViewInit, Input, NgZone, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
@@ -14,58 +15,65 @@ import { State } from '../../reducers';
   styleUrls: ['./code-editor.component.scss']
 })
 
-export class CodeEditorComponent implements OnInit, AfterViewInit {
+export class CodeEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() codeEditorText: string;
-
   private _sessionToken: string = null;
-  private postObserver: ISubscription = null;
-  private editorObserver: ISubscription = null;
+  private unsubscribe$: Subject<any>;
 
-  constructor(
-    private router: Router,
-    private editorEventService: EditorEventService,
-    private pubsubService: PubsubService,
-    private ngZone: NgZone,
-    private store: Store<State>) { }
+  constructor(private router: Router,
+              private editorEventService: EditorEventService,
+              private pubsubService: PubsubService,
+              private ngZone: NgZone,
+              private store: Store<State>) {
+
+    this.unsubscribe$ = new Subject<any>();
+  }
 
   ngOnInit() {
     // FIXME: Use router guard
-    this.store.select((state) => state.session.loggedIn).toPromise().then((loggedIn: boolean) => {
-      if (!loggedIn) {
-        this.router.navigate(['']);
-      }
-    });
+    this.store
+      .select(state => state.session.loggedIn)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((loggedIn: boolean) => {
+        if (!loggedIn) {
+          this.router.navigate([""]);
+        }
+      });
+
+    // TODO: explore idiomatic rxjs usage
+    this.store
+      .select(state => state.session.sessionToken)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((value: string) => this.sessionToken = value);
   }
 
   ngAfterViewInit() {
     this.ngZone.runOutsideAngular(() => {
-      this.editorObserver = this.pubsubService.editorEventsStream(this.sessionToken).subscribe({
-        next: (editorEvent: EditorEvent) => {
-          console.debug(editorEvent);
-          this.ngZone.run(() => {
-            this.codeEditorText = editorEvent.text;
-          });
-        },
-        error: (error) => {
-          console.error(error);
-        }
-      })
+      this.pubsubService.editorEventsStream(this.sessionToken)
+        .pipe(takeUntil(this.unsubscribe$))
+        .subscribe({
+          next: (editorEvent: EditorEvent) => {
+            console.debug(editorEvent);
+            this.ngZone.run(() => {
+              this.codeEditorText = editorEvent.text;
+            });
+          },
+          error: (error) => {
+            console.error(error);
+          }
+        })
     });
   }
 
   ngOnDestroy() {
-    if (this.postObserver) {
-      this.postObserver.unsubscribe();
-    }
-
-    if (this.editorObserver) {
-      this.editorObserver.unsubscribe();
-    }
+    console.debug("CodeEditorComponent#ngOnDestroy");
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   onChange(newCode: string) {
     console.debug(newCode);
-    this.postObserver = this.editorEventService.postEvent(this.sessionToken, newCode).subscribe();
+    this.editorEventService.postEvent(this.sessionToken, newCode).subscribe();
   }
 
   get sessionToken() {

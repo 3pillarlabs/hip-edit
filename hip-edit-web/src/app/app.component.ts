@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Title }     from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+
+import { State } from './reducers';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +12,15 @@ import { Title }     from '@angular/platform-browser';
 })
 export class AppComponent implements OnInit {
   title = 'app';
+  sessionEstablished$: Observable<boolean>;
+  sessionToken$: Observable<string>;
 
-  public constructor(private titleService: Title) { }
+  public constructor(private titleService: Title,
+                     private store: Store<State>) { }
 
   ngOnInit() {
     this.titleService.setTitle('Rarity');
+    this.sessionEstablished$ = this.store.select((state) => state.session.loggedIn);
+    this.sessionToken$ = this.store.select((state) => state.session.sessionToken);
   }
 }

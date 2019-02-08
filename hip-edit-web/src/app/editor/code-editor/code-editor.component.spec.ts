@@ -15,6 +15,10 @@ describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;
   let fixture: ComponentFixture<CodeEditorComponent>;
   let textAreEl: DebugElement;
+  let observer = {
+    subscribe: () => { unsubscribe: () => {} },
+    pipe: () => observer
+  }
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -36,9 +40,7 @@ describe('CodeEditorComponent', () => {
         {
           provide: PubsubService,
           useClass: class {
-            editorEventsStream = jasmine.createSpy('editorEventsStream').and.returnValue({subscribe: () => {
-              return { unsubscribe: () => {} }
-            }});
+            editorEventsStream = jasmine.createSpy('editorEventsStream').and.returnValue(observer);
           }
         },
         {

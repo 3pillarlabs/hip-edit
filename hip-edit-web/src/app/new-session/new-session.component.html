@@ -1,5 +1,10 @@
-<div class="col-xs-2 center-xs">
-  <a *ngIf="sessionNotEstablished$ | async" mat-raised-button id="create-new-sesion" href="{{authUrl}}" class="hippy-action vh-offset-1">
-    New Session
-  </a>
-</div>
+<a *ngIf="sessionEstablished$ | async; else showLogin"
+  mat-raised-button
+  (click)="onLogout()">Logout</a>
+<ng-template #showLogin>
+  <a
+    mat-raised-button
+    id="create-new-sesion"
+    href="{{authUrl}}"
+    class="hippy-action">New Session</a>
+</ng-template>

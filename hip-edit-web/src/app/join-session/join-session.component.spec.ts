@@ -10,6 +10,7 @@ import { JoinSessionComponent } from './join-session.component';
 import { CodeSession } from '../domain/data-model';
 import { JoinSessionService } from './join-session.service';
 import { reducers, metaReducers } from '../reducers';
+import { Observable, PartialObserver } from 'rxjs';
 
 describe('JoinSessionComponent', () => {
   let component: JoinSessionComponent;
@@ -26,9 +27,6 @@ describe('JoinSessionComponent', () => {
 
   beforeEach(async(() => {
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    let titleSpy = {
-      getTitle: jasmine.createSpy('getTitle').and.returnValue(sessionToken)
-    };
     TestBed.configureTestingModule({
       declarations: [ JoinSessionComponent ],
       imports: [
@@ -41,29 +39,19 @@ describe('JoinSessionComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: {
-              subscribe: (observer: { next: (arg0: { get: () => string; }) => void; }) => {
-                let params = {
-                  get: () => sessionToken
-                }
-                observer.next(params);
+            paramMap: new Observable<any>((observer) => {
+              let params = {
+                get: () => sessionToken
               }
-            },
-            queryParamMap: {
-              subscribe: (_observer: any) => { }
-            }
+              observer.next(params);
+            }),
+            queryParamMap: new Observable<any>()
           }
         },
         {
           provide: JoinSessionService,
           useValue: {
-            join: () => {
-              return {
-                subscribe: (observer: { next: (arg0: {}) => void; }) => {
-                  observer.next({});
-                }
-              }
-            }
+            join: () => new Observable<any>((observer) => observer.next())
           }
         }
       ]
@@ -89,11 +77,11 @@ describe('JoinSessionComponent', () => {
   });
 
   describe('joinSession', () => {
-    it('should route to session/:id', () => {
+    it('should route to editor/:id', () => {
       const service = TestBed.get(JoinSessionService);
-      service.verifyBearerToken = () => {
+      service.join = () => {
         return {
-          subscribe: (observer: { complete: () => void; }) => observer.complete()
+          subscribe: (observer: PartialObserver<any>) => observer.next({})
         }
       };
       simulateFormFill({

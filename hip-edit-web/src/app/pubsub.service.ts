@@ -86,11 +86,6 @@ export class PubsubService {
   }
 
   unsubscribeHandler() {
-    let disconnectFn: Function = this.stompClient.disconnect;
-    return {
-      unsubscribe() {
-        disconnectFn();
-      }
-    }
+    return () => this.stompClient.disconnect(() => console.debug('Stomp#disconnect'));
   }
 }

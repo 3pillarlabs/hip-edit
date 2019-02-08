@@ -1,8 +1,10 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { StoreModule } from '@ngrx/store';
 import { MockComponent } from 'ng-mocks';
 import { AppComponent }   from './app.component';
 import { NewSessionComponent } from './new-session/new-session.component';
+import { reducers } from './reducers';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -12,7 +14,8 @@ describe('AppComponent', () => {
         MockComponent(NewSessionComponent)
       ],
       imports: [
-        RouterTestingModule.withRoutes([])
+        RouterTestingModule.withRoutes([]),
+        StoreModule.forRoot(reducers)
       ]
     }).compileComponents();
   }));
