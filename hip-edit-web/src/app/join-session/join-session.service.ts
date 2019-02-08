@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 import { LoginAction } from '../actions/login.actions';
 import { State } from '../reducers';
 
-import { CodeSession } from './data-model';
+import { CodeSession } from '../domain/data-model';
 import { environment } from '../../environments/environment';
 
 @Injectable()

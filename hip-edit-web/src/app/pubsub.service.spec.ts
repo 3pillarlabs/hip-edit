@@ -1,7 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
 import { PubsubService } from './pubsub.service';
-import { environment } from '../environments/environment';
 
 describe('PubsubService', () => {
   let service: PubsubService;

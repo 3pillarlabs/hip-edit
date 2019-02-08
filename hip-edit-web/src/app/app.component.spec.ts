@@ -1,8 +1,7 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AppComponent }   from './app.component';
 import { MockComponent } from 'ng-mocks';
-import { CodeEditorComponent} from './code-editor/code-editor.component';
+import { AppComponent }   from './app.component';
 import { NewSessionComponent } from './new-session/new-session.component';
 
 describe('AppComponent', () => {
@@ -10,7 +9,6 @@ describe('AppComponent', () => {
     TestBed.configureTestingModule({
       declarations: [
         AppComponent,
-        MockComponent(CodeEditorComponent),
         MockComponent(NewSessionComponent)
       ],
       imports: [

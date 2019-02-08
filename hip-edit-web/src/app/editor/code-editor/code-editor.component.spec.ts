@@ -6,10 +6,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 
 import { CodeEditorComponent } from './code-editor.component';
-import { MaterialModule } from '../material.module';
+import { MaterialModule } from '../../material.module';
 import { EditorEventService } from './editor-event.service';
-import { PubsubService } from '../pubsub.service';
-import { reducers, metaReducers } from '../reducers';
+import { PubsubService } from '../../pubsub.service';
+import { reducers, metaReducers } from '../../reducers';
 
 describe('CodeEditorComponent', () => {
   let component: CodeEditorComponent;

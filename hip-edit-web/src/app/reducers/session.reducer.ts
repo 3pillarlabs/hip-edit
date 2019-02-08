@@ -1,4 +1,4 @@
-import { CodeSession } from '../join-session/data-model';
+import { CodeSession } from '../domain/data-model';
 import { LoginActions, LoginActionTypes } from '../actions/login.actions';
 
 export type SessionState = CodeSession;

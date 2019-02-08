@@ -3,11 +3,10 @@ import { SubscriptionLike as ISubscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { EditorEvent } from './code-editor-event';
+import { EditorEvent } from '../../domain/code-editor-event';
 import { EditorEventService } from './editor-event.service';
-import { PubsubService } from '../pubsub.service';
-import { LoginAction } from '../actions/login.actions';
-import { State } from '../reducers';
+import { PubsubService } from '../../pubsub.service';
+import { State } from '../../reducers';
 
 @Component({
   selector: 'app-code-editor',
@@ -30,9 +29,10 @@ export class CodeEditorComponent implements OnInit, AfterViewInit {
     private store: Store<State>) { }
 
   ngOnInit() {
+    // FIXME: Use router guard
     this.store.select((state) => state.session.loggedIn).toPromise().then((loggedIn: boolean) => {
       if (!loggedIn) {
-        this.router.navigate([{ outlets: { editors: [''] } }]);
+        this.router.navigate(['']);
       }
     });
   }

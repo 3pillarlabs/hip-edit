@@ -7,7 +7,7 @@ import { StoreModule } from '@ngrx/store';
 
 import { MaterialModule } from '../material.module';
 import { JoinSessionComponent } from './join-session.component';
-import { CodeSession } from './data-model';
+import { CodeSession } from '../domain/data-model';
 import { JoinSessionService } from './join-session.service';
 import { reducers, metaReducers } from '../reducers';
 

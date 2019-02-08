@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { CodeSession } from './data-model';
+import { CodeSession } from '../domain/data-model';
 import { JoinSessionService } from './join-session.service';
 import { Store } from '@ngrx/store';
 import { LoginAction } from '../actions/login.actions';
@@ -39,7 +39,7 @@ export class JoinSessionComponent implements OnInit {
           const sessionToken = params.get('sessionToken');
           const bearerToken = params.get('bearerToken');
           this.joinSessionService.verifyBearerToken(bearerToken, sessionToken).subscribe({
-            complete: () => this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]),
+            complete: () => this.router.navigate(['editor', sessionToken]),
             error: () => {
               this.invalidSessionToken = true;
               this.joinSessionForm.enable();
@@ -77,7 +77,7 @@ export class JoinSessionComponent implements OnInit {
     this.joinSessionService.join(sessionToken, userAlias).subscribe({
       next: (cs) => {
         this.store.dispatch(new LoginAction({ sessionToken, bearerToken: cs.bearerToken }));
-        this.router.navigate([{ outlets: { editors: ['session', sessionToken] } }]);
+        this.router.navigate(['editor', sessionToken]);
       },
       error: (error) => {
         console.error(error);

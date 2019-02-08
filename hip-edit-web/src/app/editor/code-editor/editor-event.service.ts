@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { EditorEvent } from './code-editor-event';
-import { environment } from '../../environments/environment';
-import { State } from '../reducers';
+import { EditorEvent } from '../../domain/code-editor-event';
+import { environment } from '../../../environments/environment';
+import { State } from '../../reducers';
 
 @Injectable()
 export class EditorEventService {

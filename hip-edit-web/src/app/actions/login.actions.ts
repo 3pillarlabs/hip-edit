@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { CodeSession } from '../join-session/data-model';
+import { CodeSession } from '../domain/data-model';
 
 export enum LoginActionTypes {
   Login = '[Join Session] Login'

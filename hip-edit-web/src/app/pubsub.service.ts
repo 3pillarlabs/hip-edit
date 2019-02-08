@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable ,  Observer } from 'rxjs';
 import { client as stompClientFactory } from '@stomp/stompjs';
 
-import { EditorEvent } from './code-editor/code-editor-event';
-import { StompConnectOptions } from './stomp-connect-options';
+import { EditorEvent } from './domain/code-editor-event';
+import { StompConnectOptions } from './domain/stomp-connect-options';
 import { environment } from '../environments/environment';
 
 @Injectable()
