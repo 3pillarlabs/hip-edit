@@ -1,0 +1,11 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Categories</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-nav-list>
+      <a mat-list-item href="#{{category.id}}" title="{{category.short}}" (click)="onSelectCategory(category.id)"
+        *ngFor="let category of categories$ | async">{{category.title}}</a>
+    </mat-nav-list>
+  </mat-card-content>
+</mat-card>

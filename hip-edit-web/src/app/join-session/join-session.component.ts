@@ -47,7 +47,7 @@ export class JoinSessionComponent implements OnInit, OnDestroy {
           const bearerToken = params.get('bearerToken');
           this.joinSessionService.verifyBearerToken(bearerToken, sessionToken)
             .subscribe({
-              complete: () => this.router.navigate(['editor', sessionToken]),
+              complete: () => this.router.navigate(['question-bank']),
               error: () => {
                 this.invalidSessionToken = true;
                 this.joinSessionForm.enable();

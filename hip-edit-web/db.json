@@ -1,0 +1,54 @@
+{
+  "categories": [
+    { "id": "java-core", "title": "Core Java", "root": "java", "tags": ["java"] },
+    { "id": "spring-core", "title": "Spring Framework", "root": "java", "tags": ["java", "spring"] },
+    { "id": "hibernate", "title": "Hibernate", "root": "java", "tags": ["java", "hibernate"] },
+    { "id": "python-core", "title": "Python", "root": "python" },
+    { "id": "python-flask", "title": "Python Flask", "root": "python" },
+    { "id": "js-core", "title": "Core JavaScript", "root": "js", "short": "ES4 - functions, objects, prototype, properties" },
+    { "id": "js-next", "title": "JavaScript ES.Next", "root": "js", "short": "From ES5, ES6 to ES Next" },
+    { "id": "react-web", "title": "React JS", "root": "react" },
+    { "id": "react-native", "title": "React Native", "root": "react" },
+    { "id": "dot-net", "title": ".Net", "root": "dotnet" },
+    { "id": "dot-net-core", "title": ".Net Core", "root": "dotnet" }
+  ],
+  "questions": [
+    {
+      "id": "238304c0-66ff-4574-81ed-08df7dad0ce2",
+      "categoryId": "java-core",
+      "short": "What is the difference between a class and an interface?",
+      "tags": ["java"],
+      "expect": {
+        "meet": [
+          "Interfaces are used to define a contract, while a class is used to define the domain"
+        ]
+      }
+    },
+    {
+      "id": "4574-81ed-08df7dad0ce2",
+      "categoryId": "java-core",
+      "short": "What is the entry point of execution and why?",
+      "tags": ["java"]
+    },
+    {
+      "id": "238304c0",
+      "categoryId": "spring-core",
+      "short": "What are the different types of injection supported by Spring?",
+      "tags": ["java", "spring"],
+      "expect": {
+        "meet": [
+          "Setter injection"
+        ],
+        "exceed": [
+          "Constructor injection"
+        ]
+      }
+    },
+    {
+      "id": "66ff-4574",
+      "categoryId": "hibernate",
+      "short": "How do you set up STI (single table inheritance)?",
+      "tags": ["java", "hibernate"]
+    }
+  ]
+}

@@ -11,6 +11,7 @@ import { environment }             from '../environments/environment';
 
 import { MaterialModule }          from './material.module';
 import { EditorModule }            from './editor/editor.module';
+import { QuestionBankModule } from './question-bank/question-bank.module';
 
 import { AppComponent }            from './app.component';
 import { JoinSessionComponent }    from './join-session/join-session.component';
@@ -38,6 +39,7 @@ const appRoutes: Routes = [
     HttpClientModule,
     MaterialModule,
     EditorModule,
+    QuestionBankModule,
     RouterModule.forRoot(appRoutes),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : []
