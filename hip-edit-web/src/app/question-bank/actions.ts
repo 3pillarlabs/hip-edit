@@ -1,4 +1,5 @@
 import { Action } from '@ngrx/store';
+import { AnswerRating } from './data-model';
 
 export enum QuestionBankActionTypes {
   SelectCategory = '[QuestionBank Category] Select',
@@ -6,6 +7,7 @@ export enum QuestionBankActionTypes {
   SelectQuestion = '[QuestionBank Question] Select',
   FirstQuestion = '[QuestionBank Question] First',
   NoQuestion = '[QuestionBank Question] None',
+  PostAnswer = '[QuestionBank Question] Answer'
 }
 
 export class SelectCategoryAction implements Action {
@@ -32,8 +34,14 @@ export class NoQuestionAction implements Action {
   readonly type = QuestionBankActionTypes.NoQuestion;
 }
 
+export class PostAnswerAction implements Action {
+  readonly type = QuestionBankActionTypes.PostAnswer;
+  constructor(public payload: AnswerRating) {}
+}
+
 export type QuestionBankActions = SelectCategoryAction |
                                   FirstCategoryAction |
                                   SelectQuestionAction |
                                   FirstQuestionAction |
-                                  NoQuestionAction;
+                                  NoQuestionAction |
+                                  PostAnswerAction;

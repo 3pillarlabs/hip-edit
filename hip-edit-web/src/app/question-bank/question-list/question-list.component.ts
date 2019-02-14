@@ -26,9 +26,7 @@ export class QuestionListComponent implements OnInit {
       .select((state) => questionBankSelector(state).board.selectedCategoryId)
       .pipe(
         filter((categoryId) => categoryId != undefined),
-        switchMap((categoryId) => {
-          return this.questionBank.questions(categoryId);
-        }),
+        switchMap((categoryId) => this.questionBank.questions(categoryId)),
         tap((questions) => {
           this.questionCount = questions.length;
           if (this.questionCount > 0) {

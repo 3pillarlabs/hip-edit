@@ -6,8 +6,25 @@ export interface Category {
   short?: string;
 }
 
+export interface AnswerExpectation {
+  meet: string[];
+  exceed?: string[];
+}
+
 export interface Question {
   id: string;
   short: string,
-  categoryId: string
+  categoryId: string,
+  tags?: string[],
+  expect?: AnswerExpectation
+}
+
+export interface AnswerRating {
+  categoryId: string,
+  questionId: string,
+  rating: number;
+}
+
+export interface QuestionAnswerRatingMap {
+  [questionId: string]: AnswerRating;
 }
