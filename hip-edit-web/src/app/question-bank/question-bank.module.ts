@@ -13,6 +13,7 @@ import { CategoryListComponent } from './category-list/category-list.component';
 import * as fromBoard from './reducers';
 import { QuestionListComponent } from './question-list/question-list.component';
 import { QuestionDetailComponent } from './question-detail/question-detail.component';
+import { ScoreCardComponent } from './score-card/score-card.component';
 
 const routes: Routes = [
   {
@@ -26,8 +27,10 @@ const routes: Routes = [
     QuestionBankComponent,
     CategoryListComponent,
     QuestionListComponent,
-    QuestionDetailComponent
+    QuestionDetailComponent,
+    ScoreCardComponent
   ],
+  entryComponents: [ ScoreCardComponent ],
   imports: [
     CommonModule,
     MaterialModule,

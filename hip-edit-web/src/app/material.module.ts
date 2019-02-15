@@ -7,7 +7,8 @@ import { MatProgressBarModule }    from '@angular/material/progress-bar';
 import { MatListModule }           from '@angular/material/list';
 import { MatChipsModule }          from '@angular/material/chips';
 import { MatDividerModule }        from '@angular/material/divider';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatSliderModule }         from '@angular/material/slider';
+import { MatDialogModule }         from '@angular/material/dialog';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { MatSliderModule } from '@angular/material/slider';
     MatListModule,
     MatChipsModule,
     MatDividerModule,
-    MatSliderModule
+    MatSliderModule,
+    MatDialogModule
   ],
   exports: [
     BrowserAnimationsModule,
@@ -30,7 +32,8 @@ import { MatSliderModule } from '@angular/material/slider';
     MatListModule,
     MatChipsModule,
     MatDividerModule,
-    MatSliderModule
+    MatSliderModule,
+    MatDialogModule
   ]
 })
 

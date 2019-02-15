@@ -28,3 +28,7 @@ export interface AnswerRating {
 export interface QuestionAnswerRatingMap {
   [questionId: string]: AnswerRating;
 }
+
+export interface ScoreCard {
+  [categoryId: string]: AnswerRating[];
+}
