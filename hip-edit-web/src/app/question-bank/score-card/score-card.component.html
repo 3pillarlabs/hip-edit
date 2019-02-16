@@ -1,5 +1,12 @@
 <h3 mat-dialog-title>Scorecard</h3>
-<mat-dialog-content>{{ data | json }}</mat-dialog-content>
+<mat-dialog-content>
+<pre #card>{{ scoreCardText }}</pre>
+</mat-dialog-content>
 <mat-dialog-actions>
+  <button mat-button (click)="onCopyClipboard(card)">
+    <i class="material-icons">file_copy</i>
+    <i class="material-icons" *ngIf="showSuccess">check</i>
+    Copy to Clipboard
+  </button>
   <button mat-button mat-dialog-close>Close</button>
 </mat-dialog-actions>

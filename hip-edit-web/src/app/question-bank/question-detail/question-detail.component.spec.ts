@@ -8,7 +8,7 @@ import { QuestionDetailComponent } from './question-detail.component';
 
 import * as fromRoot from '../../reducers';
 import * as fromFeature from '../reducers';
-import { Question } from '../data-model';
+import { Question, AnswerRating } from '../data-model';
 import { SelectQuestionAction, PostAnswerAction } from '../actions';
 import { By } from '@angular/platform-browser';
 
@@ -93,7 +93,12 @@ describe('QuestionDetailComponent', () => {
   it('should set the values for a question rated', async () => {
     mockQuestionBank.question.and.returnValue(of(question));
     store.dispatch(new SelectQuestionAction(question.id));
-    const answer = { categoryId: question.categoryId, questionId: question.id, rating: 3 };
+    const answer: AnswerRating = {
+      categoryId: question.categoryId,
+      questionId: question.id,
+      rating: 3,
+      questionShort: question.short
+    };
     store.dispatch(new PostAnswerAction(answer));
     return fixture.whenStable()
       .then(() => {
@@ -111,9 +116,9 @@ describe('QuestionDetailComponent', () => {
       "categoryId": "spring-core",
       "short": "What is the difference between named versus type injection?"
     };
-    const actions = [
-      { categoryId: question.categoryId, questionId: question.id, rating: 3 },
-      { categoryId: nextQuestion.categoryId, questionId: nextQuestion.id, rating: 1 }
+    const actions: AnswerRating[] = [
+      { categoryId: question.categoryId, questionId: question.id, rating: 3, questionShort: question.short },
+      { categoryId: nextQuestion.categoryId, questionId: nextQuestion.id, rating: 1, questionShort: nextQuestion.short }
     ];
     mockQuestionBank.question.and.callFake((questionId: string) => {
       if (questionId == question.id) {

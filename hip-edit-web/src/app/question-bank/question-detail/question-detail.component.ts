@@ -93,7 +93,8 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
     const answer: AnswerRating = {
       categoryId: this.question.categoryId,
       questionId: this.question.id,
-      rating: this.ratingValue
+      rating: this.ratingValue,
+      questionShort: this.question.short
     };
     this.store.dispatch(new PostAnswerAction(answer));
     this.ask = false;

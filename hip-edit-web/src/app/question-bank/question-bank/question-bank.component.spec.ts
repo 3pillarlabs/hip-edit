@@ -55,10 +55,10 @@ describe('QuestionBankComponent', () => {
   });
 
   const ratingMap: QuestionAnswerRatingMap = {
-    '1': { questionId: '1', categoryId: 'java-core', rating: 1 },
-    '2': { questionId: '2', categoryId: 'java-core', rating: 2 },
-    '3': { questionId: '3', categoryId: 'python', rating: 2 },
-    '4': { questionId: '4', categoryId: 'flask', rating: 3 },
+    '1': { questionId: '1', categoryId: 'java-core', rating: 1, questionShort: 'yada' },
+    '2': { questionId: '2', categoryId: 'java-core', rating: 2, questionShort: 'yada' },
+    '3': { questionId: '3', categoryId: 'python', rating: 2, questionShort: 'yada' },
+    '4': { questionId: '4', categoryId: 'flask', rating: 3, questionShort: 'yada' }
   };
 
   describe('#transform', () => {

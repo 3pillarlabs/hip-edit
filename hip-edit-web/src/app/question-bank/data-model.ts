@@ -23,6 +23,7 @@ export interface AnswerRating {
   categoryId: string,
   questionId: string,
   rating: number;
+  questionShort: string;
 }
 
 export interface QuestionAnswerRatingMap {
