@@ -1,6 +1,13 @@
 <h3 mat-dialog-title>Scorecard</h3>
 <mat-dialog-content>
-<pre #card>{{ scoreCardText }}</pre>
+  <h4>Hire-o-meter</h4>
+  <div class="row rating-blocks">
+    <div *ngFor="let block of ratingBlocks" class="col-lg {{block.status}}">
+      <strong>{{block.lb}}</strong> &mdash; <strong>{{block.ub}}</strong> <br/>
+      <i>{{block.desc}}</i>
+    </div>
+  </div>
+  <pre #card>{{ scoreCardText }}</pre>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="onCopyClipboard(card)">

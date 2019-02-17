@@ -13,9 +13,9 @@ describe('QuestionBank Board Reducer', () => {
 
   describe('PostAnswer action', () => {
     it('should add answer to the store', () => {
-      const firstPayload: AnswerRating = { categoryId: 'java-core', questionId: '1234', rating: 0 };
+      const firstPayload: AnswerRating = { categoryId: 'java-core', questionId: '1234', rating: 0, questionShort: '' };
       const firstResult = reducer(initialState, new PostAnswerAction(firstPayload));
-      const secondPayload: AnswerRating = { categoryId: 'java-core', questionId: '5678', rating: 2 };
+      const secondPayload: AnswerRating = { categoryId: 'java-core', questionId: '5678', rating: 2, questionShort: '' };
       const secondResult = reducer(firstResult, new PostAnswerAction(secondPayload));
       expect(Object.keys(firstResult.answers).includes('1234')).toBeTruthy();
       expect(firstResult.answers['1234']).toEqual(firstPayload);
