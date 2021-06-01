@@ -84,7 +84,7 @@ six==1.11.0
 snowballstemmer==1.2.1
 troposphere==2.3.0
 tzlocal==1.5.1
-urllib3==1.22
+urllib3==1.26.5
 virtualenv==16.0.0
 websocket-client==0.47.0
 Werkzeug==0.14.1
